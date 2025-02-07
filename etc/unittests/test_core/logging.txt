@@ -1,0 +1,40 @@
+|17:20:48.067|   (TRACE) Global log level is set to TRACE
+|17:20:48.067|   (TRACE) Global log format is set to DEFAULT
+|17:20:48.067|   (TRACE) Loading Allpix
+|17:20:48.067|  (STATUS) Welcome to Allpix^2 v3.1.0-76-ge4c9ddff5
+|17:20:48.067|  (STATUS) Initialized PRNG with configured seed 0
+|17:20:48.068|   (DEBUG) Creating output directory /home/gkunkler/allpix/allpix-squared/build/testing/core/test_01-5_globalconfig_log_file/output
+|17:20:48.255|   (TRACE) Adding physical units
+|17:20:48.255|   (TRACE) Setting ROOT plotting style
+|17:20:48.255|   (DEBUG) Loading detectors
+|17:20:48.255|   (DEBUG) Detector mydetector:
+|17:20:48.255|   (DEBUG) Position:    (0mm,0mm,0mm)
+|17:20:48.255|   (DEBUG)  misaligned: (0mm,0mm,0mm)
+|17:20:48.255|   (DEBUG) Orientation: (0deg,0deg,0deg)
+|17:20:48.255|   (DEBUG)  misaligned: (0deg,0deg,0deg)
+|17:20:48.255|   (DEBUG) Interpreting Euler angles as XYZ rotation
+|17:20:48.255|   (TRACE) Registering new detector mydetector
+|17:20:48.255|   (TRACE) Registered model path: /home/gkunkler/allpix/allpix-squared/models
+|17:20:48.255|   (TRACE) Registered path of configuration file as model location.
+|17:20:48.261|  (STATUS) Loaded 0 modules
+|17:20:48.261|   (TRACE) Initializing Allpix
+|17:20:48.261|   (TRACE) Register number of workers for possible multithreading
+|17:20:48.261|  (STATUS) Multithreading enabled, processing events in parallel on 19 worker threads
+|17:20:48.261|  (STATUS) Allocating a total of 4864 event slots for buffered modules
+|17:20:48.261|  (STATUS) Initializing 0 module instantiations
+|17:20:48.261|  (STATUS) Initialized 0 module instantiations 
+|17:20:48.261|   (TRACE) Running Allpix
+|17:20:48.261|   (TRACE) Initializing thread pool with 19 threads
+|17:20:48.268|  (STATUS) Starting event loop
+|17:20:48.268|   (TRACE) All events have been initialized. Waiting for thread pool to finish...
+|17:20:48.268|    (INFO) Starting event 1 with seed 2947667278772165694
+|17:20:48.268|    (INFO) Finished event 1 with seed 2947667278772165694
+|17:20:48.268|  (STATUS) Buffered 0, finished 1 of 1 events
+|17:20:48.268|  (STATUS) Finished run of 1 events          
+|17:20:48.268|   (TRACE) Destroying thread pool
+|17:20:48.269|   (TRACE) Finalizing Allpix
+|17:20:48.269|   (TRACE) Finalizing module instantiations
+|17:20:48.273|  (STATUS) Finalization completed        
+|17:20:48.273|  (STATUS) Executed 0 instantiations in 0 seconds, spending 0% of time in slowest instantiation 
+|17:20:48.273|  (STATUS) Average processing time is 267.954us/event, event generation at 3732 Hz
+|17:20:48.273|  (STATUS) This corresponds to a processing time of 5.09113ms/event per worker
