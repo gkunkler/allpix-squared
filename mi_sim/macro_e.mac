@@ -1,0 +1,12 @@
+
+# Point Source 1
+/gps/particle e- # Electron
+/gps/pos/type Point # Particles come out of a point
+/gps/pos/centre 0.0 0.0 0.0 mm # Placed at the origin
+/gps/ene/type Mono 
+/gps/ene/mono 50 keV # Energy
+/gps/ang/type iso
+/gps/ang/mintheta 90 deg # Define specific angle for it to come out at
+/gps/ang/maxtheta 90 deg
+/gps/ang/minphi 180 deg
+/gps/ang/maxphi 180 deg

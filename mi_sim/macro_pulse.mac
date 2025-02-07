@@ -1,0 +1,41 @@
+
+/control/verbose 1
+
+# Gamma ray pointed straight at the center of the detector from an arbitrary distance away
+#/gps/particle gamma
+#/gps/pos/type Point
+#/gps/pos/centre 0.0 0.0 -2 mm
+
+/gps/particle e-
+/gps/pos/type beam
+/gps/direction 0 0 1
+/gps/pos/centre 0.0 0.0 0.0 mm
+
+/gps/ene/type Mono
+/gps/ene/mono 50 keV
+
+#/gps/ang/type iso
+#/gps/ang/mintheta 180 deg
+#/gps/ang/maxtheta 180 deg
+#/gps/ang/minphi 180 deg
+#/gps/ang/maxphi 180 deg
+
+/gps/time 0 ns
+/run/beamOn 1
+
+/gps/time 50 ns
+/gps/pos/mono 100 keV
+/run/beamOn 1
+
+
+#/gps/source/intensity 1
+#/gps/particle e-
+#/gps/pos/type beam
+#/gps/pos/type 0 0 1
+#/gps/pos/centre
+
+
+#/gps/source/intensity 1
+
+
+

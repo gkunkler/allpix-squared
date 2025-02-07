@@ -1,0 +1,13 @@
+
+# Gamma ray pointed straight at the center of the detector from an arbitrary distance away
+/gps/particle gamma
+/gps/pos/type Point
+/gps/pos/centre 0.0 0.0 -2 mm
+/gps/ene/type Mono
+/gps/ene/mono 50 keV
+/gps/ang/type iso
+/gps/ang/mintheta 180 deg
+/gps/ang/maxtheta 180 deg
+/gps/ang/minphi 180 deg
+/gps/ang/maxphi 180 deg
+
