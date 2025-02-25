@@ -175,6 +175,7 @@ if (containsDC or containsPC) and num_events <= 5:
     scatter_fig = plt.figure()
     scatter_ax = scatter_fig.add_subplot(projection='3d')
     opacity_scaling = 0.1/num_events 
+
     for i in range(num_events): # Add the charges from each event
         if containsDC: 
             dcGPos = event_data['dc_positions'][i]
@@ -182,7 +183,23 @@ if (containsDC or containsPC) and num_events <= 5:
         if containsPC:
             pcGPos = event_data['pc_positions'][i]
             scatter_ax.scatter(pcGPos['x'], pcGPos['y'], pcGPos['z'], marker='.', alpha=opacity_scaling)
+
+    # Plot histogram
+    hist_fig, hist_ax = plt.subplots()
+    bins = np.linspace(-1,1,50)
+
+    dcG_z = []
+    pcG_z = []
+    for i in range(num_events): # Add the charges from each event to a single array with only z values
+        if containsDC: 
+            dcG_z.append(event_data['dc_positions'][i]['z'])
+        if containsPC:
+            pcG_z.append(event_data['pc_positions'][i]['z'])
     
+    if containsDC: hist_ax.hist(dcG_z, bins, alpha=0.5, label='Deposited Charges')
+    if containsPC: hist_ax.hist(pcG_z, bins, alpha=0.5, label='Propagated Charges')
+    
+    # Formatting for scatter
     # Add lines indicating the center pixel location
     pixel_x = [pixel_width*k for k in [-0.5, 0.5, 0.5, -0.5, -0.5]]
     pixel_y = [pixel_width*k for k in [-0.5, -0.5, 0.5, 0.5, -0.5]] 
@@ -196,9 +213,16 @@ if (containsDC or containsPC) and num_events <= 5:
     scatter_ax.set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width) # bounds of 5x5 are -0.825,0.825
     scatter_ax.set_zlim(-1, 1)
 
-    if containsDC and containsPC: scatter_ax.set_title("Locations of Deposited and Propagated Charges")
-    elif containsDC: scatter_ax.set_title("Locations of Deposited Charges")
-    else: scatter_ax.set_title("Locations of Propagated Charges")
+    # Set titles depending on charge objects available
+    if containsDC and containsPC: 
+        scatter_ax.set_title("Locations of Deposited and Propagated Charges")
+        hist_ax.set_title("Z Positions of Deposited and Propagated Charges")
+    elif containsDC: 
+        scatter_ax.set_title("Locations of Deposited Charges")
+        hist_ax.set_title("Z Positions of Deposited Charges")
+    else: 
+        scatter_ax.set_title("Locations of Propagated Charges")
+        hist_ax.set_title("Z Positions of Propagated Charges")
 
 if containsPC:
 

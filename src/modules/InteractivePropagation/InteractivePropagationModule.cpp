@@ -608,12 +608,12 @@ InteractivePropagationModule::propagate_together(Event* event,
     };
 
     // Create the pixel map which is used to collect the pulse objects
-    std::vector< std::map<Pixel::Index, Pulse> > pixel_map_vector; //TODO: use a vector to store the pulses from each pulse separately if that is necessary
-    std::map<Pixel::Index, Pulse> pixel_map;
+    std::vector< std::map<Pixel::Index, Pulse> > pixel_map_vector;
 
     // Create list of RK4 objects that correspond to each particle
-    // No error estimation required since we're not adapting step size
     std::vector<allpix::RungeKutta<double, 4, 3>> runge_kutta_vector;
+
+    // Initialization loop through all charges
     for(auto charge : propagating_charges){
         
         std::function<Eigen::Matrix<double, 3, 1>(double, Eigen::Matrix<double, 3, 1>)> step_function;
@@ -623,9 +623,10 @@ InteractivePropagationModule::propagate_together(Event* event,
             step_function = [=](double t, Eigen::Vector3d pos) -> Eigen::Vector3d {return carrier_velocity_noB(t, pos, charge.getType());};
         }
 
+        // No error estimation required since we're not adapting step size
         auto rk = make_runge_kutta(
             tableau::RK4, 
-            step_function, // This function can only have two arguments (so I determine charge type before here)
+            step_function, // This step function can only have two arguments (so I determine charge type before here)
             timestep_, 
             convertPointToVector(charge.getLocalPosition()));
 
@@ -633,6 +634,11 @@ InteractivePropagationModule::propagate_together(Event* event,
                                                 
         runge_kutta_vector.push_back(rk); // Pass by value
                                     //  Eigen::Matrix<double,3,1>(convertPointToVector(charge.getLocalPosition()))));
+    
+        std::map<Pixel::Index, Pulse> pixel_map;
+
+        pixel_map_vector.push_back(pixel_map);
+
     }
 
     // Continue time propagation until no more objects remain in propagating charge vector 
@@ -641,16 +647,15 @@ InteractivePropagationModule::propagate_together(Event* event,
     size_t next_idx = 0;
     for(double_t time = 0; time < integration_time_; time += timestep_) { // time is the threshold value for each iteration
 
-        if(std::fmod(time, 10) == 0){
-            LOG(DEBUG) << "Time during integration has reached " << time;
+        if(std::fmod(time, 10) < 0.005){
+            LOG(INFO) << "Time during integration has reached " << time << "ns of " << integration_time_ << "ns";
         }
 
         // Loop over all charges remaining in the detector
         for (unsigned int i = 0; i < propagating_charges.size(); i++){
             
-            auto charge = propagating_charges[i];
-            // Eigen::Vector3d position = convertPointToVector(charge.getLocalPosition());
-            auto runge_kutta = runge_kutta_vector[i];
+            auto &charge = propagating_charges[i];
+            auto &runge_kutta = runge_kutta_vector[i]; // Must be a vector in order to keep data from iteration to iteration
             auto position = runge_kutta.getValue();
             auto state = charge.getState();
             auto type = charge.getType();
@@ -690,10 +695,9 @@ InteractivePropagationModule::propagate_together(Event* event,
             auto step = runge_kutta.step();
             //TODO: Set the charge objects time to the new time so that it can be used in the electric field function for other charges. 
             // It might need to be in a different place so that they don't move out of range (in time) of the other charges.
-
+            
             // Get the new position due to the electric field
             position = runge_kutta.getValue();
-            
 
             // Apply diffusion step
             auto diffusion = carrier_diffusion(std::sqrt(efield.Mag2()), doping, timestep_, charge.getType());
@@ -822,7 +826,7 @@ InteractivePropagationModule::propagate_together(Event* event,
                         << " q = " << Units::display(induced, "e");
 
                 // Create pulse if it doesn't exist. Store induced charge in the returned pulse iterator
-                auto pixel_map_iterator = pixel_map.emplace(pixel_index, Pulse(timestep_, integration_time_));
+                auto pixel_map_iterator = pixel_map_vector[i].emplace(pixel_index, Pulse(timestep_, integration_time_));
                 try {
                     pixel_map_iterator.first->second.addCharge(induced, runge_kutta.getTime());
                 } catch(const PulseBadAllocException& e) {
@@ -868,12 +872,17 @@ InteractivePropagationModule::propagate_together(Event* event,
             // Increase charge at the end of the step in case of impact ionization (commented since we are not performing multiplication)
             // charge += n_secondaries;
 
+            // Set the values in vectors to keep them in sync with the propagation
+            // TODO: Change the storage of the charges' information such as state and position so that they can be updated
+            // charge.getState() = state;
+
+
         }
 
     }
 
     // Add final charges to propagated charges vector
-    LOG(DEBUG) << "Outputing propagated charges";
+    LOG(INFO) << "Outputing propagated charges";
     for (unsigned int i = 0; i < propagating_charges.size(); i++){
 
         auto charge = propagating_charges[i];
@@ -891,6 +900,7 @@ InteractivePropagationModule::propagate_together(Event* event,
         // Create PropagatedCharge object and add it to the list
         auto local_position = static_cast<ROOT::Math::XYZPoint>(runge_kutta.getValue());
         auto global_position = detector_->getGlobalPosition(local_position);
+        // LOG(INFO) << "final local: " << local_position << "  final global: " << global_position;
         auto local_time = runge_kutta.getTime();
         auto global_time = local_time - charge.getLocalTime() + charge.getGlobalTime();
         const DepositedCharge* deposit = charge.getDepositedCharge();
@@ -898,7 +908,7 @@ InteractivePropagationModule::propagate_together(Event* event,
         PropagatedCharge propagated_charge(local_position,
                                         global_position,
                                         charge.getType(),
-                                        std::move(pixel_map),
+                                        std::move(pixel_map_vector[i]),
                                         local_time,
                                         global_time,
                                         charge.getState(),
