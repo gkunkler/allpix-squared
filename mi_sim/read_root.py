@@ -4,6 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import math
 
+# This file plots some histograms, scatter, and current plots
+# See plot_hist.py for a more detailed look at the histograms
+
 ROOT.gSystem.Load("lib/libAllpixObjects.so") # Load the dictionaries for Allpix objects
 
 # File Input
@@ -63,8 +66,8 @@ num_events = pxcTree.GetEntries()
 for iEvent in range(num_events):
     
     # Define objects for each event
-    dcGPos = {'x': [], 'y': [], 'z': []} # Deposited Charges Global Positions
-    pcGPos = {'x': [], 'y': [], 'z': []} # Propagated Charges Global Positions
+    dcGPos = {'x': [], 'y': [], 'z': [], 'q':[], 'type':[]} # Deposited Charges Global Positions
+    pcGPos = {'x': [], 'y': [], 'z': [], 'q':[], 'type':[]} # Propagated Charges Global Positions
     pcPulse = {'q': [], 'x': [], 'y': [], 't': []} # Pulse of charge from propagated charges (contains global x and y)
     pxcPulse = {'q': [], 'i_x': -1, 'i_y': -1, 't_bin': -1} # Pulse of charge from pixel charges (stores the pixel indices as well)
     pxhPulse = {'q': [], 't': [], 'i_x': [], 'i_y': []} # Pulse of charge from pixel hits (stores the pixel indices as well)
@@ -93,6 +96,8 @@ for iEvent in range(num_events):
             dcGPos['x'].append(dc.getGlobalPosition().x())
             dcGPos['y'].append(dc.getGlobalPosition().y())
             dcGPos['z'].append(dc.getGlobalPosition().z())
+            dcGPos['q'].append(abs(dc.getCharge()))
+            dcGPos['type'].append(dc.getType())
 
     # Get the locations of propagated charges
     if containsPC:
@@ -100,6 +105,8 @@ for iEvent in range(num_events):
             pcGPos['x'].append(pc.getGlobalPosition().x())
             pcGPos['y'].append(pc.getGlobalPosition().y())
             pcGPos['z'].append(pc.getGlobalPosition().z())
+            pcGPos['q'].append(abs(pc.getCharge())) # Not the actual charge but the induced charge from each PC
+            pcGPos['type'].append(pc.getType())
 
             pcPulse['q'].append(pc.getCharge())
             pcPulse['x'].append(pc.getGlobalPosition().x())
@@ -186,18 +193,31 @@ if (containsDC or containsPC) and num_events <= 5:
 
     # Plot histogram
     hist_fig, hist_ax = plt.subplots()
-    bins = np.linspace(-1,1,50)
+    bins = np.linspace(-1,1,200)
 
-    dcG_z = []
-    pcG_z = []
+    dcG_z = {'e':[],'h':[]}
+    pcG_z = {'e':[],'h':[]}
     for i in range(num_events): # Add the charges from each event to a single array with only z values
         if containsDC: 
-            dcG_z.append(event_data['dc_positions'][i]['z'])
+            dcGPos = event_data['dc_positions'][i]
+            # print(dcGPos['type'])
+            dcG_z['e'].append(np.array(dcGPos['z'])[np.array(dcGPos['type'])==255]) 
+            dcG_z['h'].append(np.array(dcGPos['z'])[np.array(dcGPos['type'])==1]) 
         if containsPC:
-            pcG_z.append(event_data['pc_positions'][i]['z'])
+            pcGPos = event_data['pc_positions'][i]
+            pcG_z['e'].append(np.array(pcGPos['z'])[np.array(pcGPos['type'])==255]) 
+            pcG_z['h'].append(np.array(pcGPos['z'])[np.array(pcGPos['type'])==1]) 
     
-    if containsDC: hist_ax.hist(dcG_z, bins, alpha=0.5, label='Deposited Charges')
-    if containsPC: hist_ax.hist(pcG_z, bins, alpha=0.5, label='Propagated Charges')
+    if containsDC: 
+        hist_ax.hist(dcG_z['e'], bins, alpha=0.5, label='Deposited Electrons')
+        hist_ax.hist(dcG_z['h'], bins, alpha=0.5, label='Deposited Holes')
+    if containsPC: 
+        hist_ax.hist(pcG_z['e'], bins, alpha=0.5, label='Propagated Electrons')
+        hist_ax.hist(pcG_z['h'], bins, alpha=0.5, label='Propagated Holes')
+
+    hist_ax.legend()
+
+    # hist_ax.set_yscale('log')
     
     # Formatting for scatter
     # Add lines indicating the center pixel location
