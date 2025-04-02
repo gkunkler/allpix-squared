@@ -135,7 +135,6 @@ if (containsDC or containsPC) and num_events <= 5:
             pcGPos = propagated_data[i]
             e_selector = np.array(pcGPos['type'])==-1
             h_selector = np.array(pcGPos['type'])==1
-            print(e_selector)
 
             dist_axs[0].hist2d(np.array(pcGPos['x'])[e_selector], np.array(pcGPos['y'])[e_selector], bins=num_bins)
             dist_axs[1].hist2d(np.array(pcGPos['x'])[h_selector], np.array(pcGPos['y'])[h_selector], bins=num_bins)
@@ -215,10 +214,8 @@ if (containsDC or containsPC) and num_events <= 5:
         scatter_ax.set_title("Locations of Propagated Charges")
         hist_ax.set_title("Z Positions of Propagated Charges")
 
-#TODO: Retrieve the rms data and analyze in python
+#TODO: Take the final locations of the charges and calculate the electric field (potential is probably easier) in the detector. Plot slices or level curves of the potential
 
 plt.show()
-
-# input("Keeping window open...") # Keeps plots visible until user presses enter
 
 

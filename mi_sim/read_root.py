@@ -247,9 +247,9 @@ if (containsDC or containsPC) and num_events <= 5:
 if containsPC:
 
     # Create binning for charge
-    width = 200 #ns , initial total width of the time binning (width = num_bins * width of each bin)
+    width = 250 #ns , initial total width of the time binning (width = num_bins * width of each bin)
     #width = max(chargePulse['t'])+1 #ns
-    num_bins = 1000
+    num_bins = 500
     threshold = 5 # e , threshold for determining width of plot
     buffer = 2 # ns , number of nanoseconds on either side of the pulse to plot
 
@@ -326,7 +326,7 @@ if containsPXC:
     
     # Determine rebinning (must loop through each event and pixel to get the longest q array)
     do_rebinning = True # toggle rebinning behavior
-    default_bin_width = 0.25 # Used if do_rebinning is set to True
+    default_bin_width = 0.5 # Used if do_rebinning is set to True
     num_bins = 0
     for pxcPulse in event_data['pxc_pulses']:
         if do_rebinning:
@@ -414,7 +414,7 @@ if containsPXC:
 
     # Determine bounds for the pulse and cumulative charge plots
     min_t = 0
-    max_t = max(t)
+    max_t = 300 #max(t)
 
     max_I = np.max(pxc_current)
     min_I = np.min(pxc_current)
@@ -442,10 +442,10 @@ if containsPXC:
             pxc_cum_ax[i_x][i_y].set_ylim((min_q, max_q)) # The plots might be transposed from the actual orientation
             
     #pxc_ax[1][0].set_title(f'Current pulse from average of {num_events} events')
-    pxc_ax[num_pixels_x-1][1].set_xlabel(f"Time [ns] (time_step={bin_width}ns)")
+    pxc_ax[num_pixels_x-1][1].set_xlabel(f"Time [ns] (bin_width={bin_width}ns)")
     pxc_ax[1][0].set_ylabel("Current [uA]")
     
-    pxc_cum_ax[num_pixels_x-1][1].set_xlabel(f"Time [ns] (time_step={bin_width}ns)")
+    pxc_cum_ax[num_pixels_x-1][1].set_xlabel(f"Time [ns] (bin_width={bin_width}ns)")
     pxc_cum_ax[1][0].set_ylabel("Charge [e]")
     
     #pxc_ax[1].set_xlabel(f"Time [ns] (time_step={bin_width})")
