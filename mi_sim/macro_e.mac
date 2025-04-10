@@ -6,7 +6,7 @@
 /gps/ene/type Mono 
 /gps/ene/mono 10 keV # 50keV # Energy
 /gps/ang/type iso
-/gps/ang/mintheta 90 deg # Define specific angle for it to come out at
-/gps/ang/maxtheta 90 deg
-/gps/ang/minphi 180 deg
-/gps/ang/maxphi 180 deg
+/gps/ang/mintheta 0 deg # Allow the e- to come out at any angle
+/gps/ang/maxtheta 180 deg
+/gps/ang/minphi 0 deg
+/gps/ang/maxphi 360 deg

@@ -189,19 +189,29 @@ if (containsDC or containsPC) and num_events <= 5:
             dcGPos = deposited_data[i]
             dcG_z['e'].append(np.array(dcGPos['z'])[np.array(dcGPos['type'])==-1]) 
             dcG_z['h'].append(np.array(dcGPos['z'])[np.array(dcGPos['type'])==1]) 
+
         if containsPC:
             pcGPos = propagated_data[i]
             pcG_z['e'].append(np.array(pcGPos['z'])[np.array(pcGPos['type'])==-1]) 
             pcG_z['h'].append(np.array(pcGPos['z'])[np.array(pcGPos['type'])==1]) 
     
     if containsDC: 
-        hist_ax.hist(dcG_z['e'], bins, alpha=0.5, label='Deposited Electrons')
-        hist_ax.hist(dcG_z['h'], bins, alpha=0.5, label='Deposited Holes')
-    if containsPC: 
-        hist_ax.hist(pcG_z['e'], bins, alpha=0.5, label='Propagated Electrons')
-        hist_ax.hist(pcG_z['h'], bins, alpha=0.5, label='Propagated Holes')
+    #     hist_ax.hist(dcG_z['e'], bins, alpha=0.5, label='Deposited Electrons')
+    #     hist_ax.hist(dcG_z['h'], bins, alpha=0.5, label='Deposited Holes')
+        for z in np.unique(dcG_z['h'] + dcG_z['e']):
+            hist_ax.axvline(z, linestyle='dotted', linewidth=2, color='k', label='Deposited Charge Locations')
 
-    hist_ax.legend()
+    if containsPC: 
+        if pcG_z['e']:
+            hist_ax.hist(pcG_z['e'], bins, alpha=0.5, label='Propagated Electrons')
+        if pcG_z['h']:
+            hist_ax.hist(pcG_z['h'], bins, alpha=0.5, label='Propagated Holes')
+
+    # Filter out duplicate legend entries
+    handles, labels = plt.gca().get_legend_handles_labels()
+    labels, ids = np.unique(labels, return_index=True)
+    handles = [handles[i] for i in ids]
+    hist_ax.legend(handles, labels, loc='best')
 
     # Set titles depending on charge objects available
     if containsDC and containsPC: 

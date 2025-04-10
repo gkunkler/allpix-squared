@@ -58,23 +58,31 @@ if True:
     # Fit configuration
 
     min_t = 0 # Pick the region we are fitting
-    max_t = 200
+    max_t = 50
 
-    f = h_rms # Set the function we are fitting
-    function_name = "Hole"
+    f = e_z_rms # Set the function we are fitting
+    function_name = "Electron (z)"
     
     min_i = np.where(t<=min_t)
     max_i = np.where(t>=max_t)
-    if not min_i: 
-        min_i = 0
-    else:
+    try:
         min_i = max(min_i[0][0], 0)
-    if not max_i: 
-        max_i = len(t)-1
-    else:
+    except:
+        min_i = 0
+
+    try:
         max_i = min(max_i[0][0], len(t)-1)
-    
-    
+    except:
+        max_i = len(t)-1
+
+    # if not min_i: 
+    #     min_i = 0
+    # else:
+    #     min_i = max(min_i[0][0], 0)
+    # if not max_i: 
+    #     max_i = len(t)-1
+    # else:
+    #     max_i = min(max_i[0][0], len(t)-1)
 
     # Fit inside fit region
     y_fit = f[min_i:max_i] 
@@ -101,8 +109,8 @@ if True:
     fit_fig.suptitle(f'Charge Spread for {function_name}')
 
     # Compare to diffusion const.
-    # mu = 1000 * 10**2 * 10**-9 # cm^/V/s * (10mm/cm)^2 * (1s/10^9ns) = mm^2/V/ns (this is for electrons)
-    mu = 100 * 10**2 * 10**-9 # cm^/V/s * (10mm/cm)^2 * (1s/10^9ns) = mm^2/V/ns (this is for holes)
+    mu = 1000 * 10**2 * 10**-9 # cm^/V/s * (10mm/cm)^2 * (1s/10^9ns) = mm^2/V/ns (this is for electrons)
+    # mu = 100 * 10**2 * 10**-9 # cm^/V/s * (10mm/cm)^2 * (1s/10^9ns) = mm^2/V/ns (this is for holes)
     kB = 8.62*10**-5 # eV/K
     T = 273 # K
     q = 351 # e (average per charge group?)
@@ -112,7 +120,7 @@ if True:
     print(D)
     a_exp = np.sqrt(2*D*dim)
     print(a_exp)
-    fit_ax.plot(x_fit, fit_exponential(x_fit,a_exp,0.5), color='r', linestyle=':', label=f'expected: sqrt({dim}*2Dt) with a=sqrt({dim}*2D)={np.round(a_exp,5)}')
+    fit_ax.plot(x_fit, fit_exponential(x_fit,a_exp,0.5), color='r', linestyle=':', label=f'expected diffusion: sqrt({dim}*2Dt) with a=sqrt({dim}*2D)={np.round(a_exp,5)}')
 
     fit_ax.legend()
 
