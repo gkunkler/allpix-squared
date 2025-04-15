@@ -58,10 +58,12 @@ if True:
     # Fit configuration
 
     min_t = 0 # Pick the region we are fitting
-    max_t = 50
+    max_t = 99
 
     f = e_z_rms # Set the function we are fitting
     function_name = "Electron (z)"
+    # f = e_rms # Set the function we are fitting
+    # function_name = "Electron (3D RMS)"
     
     min_i = np.where(t<=min_t)
     max_i = np.where(t>=max_t)
@@ -100,8 +102,9 @@ if True:
     print(f'covariance: a={a_v}, n={n_v}')
 
     fit_fig, fit_ax = plt.subplots()
-    fit_ax.plot(x_fit, fit_exponential(x_fit,a,n), color='b', linestyle='--', label=f'fit: {np.round(a,5)}*x^{np.round(n,4)}')
+    
     fit_ax.plot(t, f, color='k', linestyle='-', label=function_name)
+    fit_ax.plot(x_fit, fit_exponential(x_fit,a,n), color='b', linestyle='--', label=f'fit: {np.round(a,5)}*x^{np.round(n,4)}')
 
     fit_ax.set_xlabel('time, t [ns]')
     fit_ax.set_ylabel('rms [mm]')

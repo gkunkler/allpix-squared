@@ -249,7 +249,7 @@ if containsPC:
     # Create binning for charge
     width = 250 #ns , initial total width of the time binning (width = num_bins * width of each bin)
     #width = max(chargePulse['t'])+1 #ns
-    num_bins = 500
+    num_bins = 250
     threshold = 5 # e , threshold for determining width of plot
     buffer = 2 # ns , number of nanoseconds on either side of the pulse to plot
 
@@ -326,7 +326,7 @@ if containsPXC:
     
     # Determine rebinning (must loop through each event and pixel to get the longest q array)
     do_rebinning = True # toggle rebinning behavior
-    default_bin_width = 0.5 # Used if do_rebinning is set to True
+    default_bin_width = 1 # Used if do_rebinning is set to True
     num_bins = 0
     for pxcPulse in event_data['pxc_pulses']:
         if do_rebinning:
