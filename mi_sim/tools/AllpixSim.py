@@ -19,7 +19,7 @@ class AllpixObject:
 
         self.DETECTOR_FILE = "detector.conf"
         self.NUMBER_OF_EVENTS = 1
-        self.OUTPUT_FOLDER = "output/multi" # Relative to output/
+        self.OUTPUT_FOLDER = "output/multi/raw"
         self.SOURCE_ENERGY = 10 #keV
         self.SOURCE_POS_X = None #um
         self.SOURCE_POS_Y = None #um

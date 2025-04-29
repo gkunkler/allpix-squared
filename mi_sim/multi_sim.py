@@ -13,9 +13,12 @@ import ROOT
 import os
 import pickle
 
+total_start_time = time.time()
+
 ROOT.gSystem.Load("lib/libAllpixObjects.so") # Load the dictionaries for Allpix objects
 
-output_folder = "output/multi"
+output_folder = "output/multi/raw"
+output_object_folder = "output/multi"
 output_list = []
 
 # e_field_mapping = "PIXEL_FULL"
@@ -23,18 +26,30 @@ output_list = []
 
 num_pulses = 100 # Number of particles per event
 
-keVs = [1,3,5]
+keVs = [0.5,5,10] # ionization energy = 3.64eV
 
-charges_per_steps = 20 #{1:2, 5:8, 60:10, 120:20}
-enable_coulomb = 1
+# charges_per_steps = {0.5:14, 1:28, 3:83, 5:138, 10:275} # 0.1% of total charge (num_pulses*keV*1000/ionization_energy * 0.001) -> approx. 1000 charge groups
+charge_per_step = 1
+
+coulomb_field_limit = 4e5 #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
+# max_charge_groups_list = [1000]
+max_charge_groups = 1000
+
+time_step = 0.1
+
+# enable_coulomb = 1
 
 for keV in keVs:
-    charge_per_step = charges_per_steps # charges_per_steps[keV]
+    # charge_per_step = charges_per_steps[keV]
 
-    for coulomb_field_limit in [1e5,3e5,5e5]:#[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
-        nPulses = num_pulses # [keV]
+    # for coulomb_field_limit in coulomb_field_limits:
+    for enable_diffusion in [0,1]:
 
-        for max_charge_groups in [1500,1200,1000,800,500,200,100]:
+        nPulses = num_pulses
+
+        # for max_charge_groups in max_charge_groups_list:
+        # for time_step in time_steps:
+        for enable_coulomb in [0,1]:
             allpix = AllpixObject()
 
             allpix.LOG_LEVEL            = "STATUS" #STATUS, INFO, WARNING, DEBUG
@@ -63,20 +78,21 @@ for keV in keVs:
 
             # allpix.MAX_STEP_LENGTH      = 0.1 #um
             # allpix.CHARGE_PER_STEP      = charge_per_step
-            # allpix.TIME_STEP            = 0.1 #ns
+            allpix.TIME_STEP            = time_step #ns
             # allpix.INTEGRATION_TIME     = 20 #ns # Generally much less is needed, this is for the prototype with incomplete E-field
             # allpix.INDUCED_DISTANCE     = 1
             
             allpix.WORKERS              = 1 # default 4
             # allpix.USE_ANGLE            = False # Not working i think
             
-            allpix.ENABLE_DIFFUSION     = 0
+            allpix.ENABLE_DIFFUSION     = enable_diffusion
             allpix.ENABLE_COULOMB       = enable_coulomb
             allpix.COULOMB_FIELD_LIMIT  = coulomb_field_limit
 
             allpix.SOURCE_ENERGY = keV
             allpix.NUMBER_OF_PARTICLES     = nPulses
             allpix.MAX_CHARGE_GROUPS = max_charge_groups
+            allpix.NUMBER_OF_EVENTS = 1
 
             # allpix.RECOMBINATION_MODEL = recombination_model #SRH, Auger, Langevin
 
@@ -94,10 +110,10 @@ for keV in keVs:
             # allpix.W_POTENTIAL_FILE     = "pathToWPotentialInitFile"
 
             allpix.OUTPUT_FOLDER = output_folder
-            allpix.OUTPUT_FOLDER += f"/params_{keV}_{coulomb_field_limit}_{max_charge_groups}".replace(".","p") #replace if there are "." in the path
+            allpix.OUTPUT_FOLDER += f"/{keV}_d{enable_diffusion}_cr{enable_coulomb}".replace(".","p") #replace if there are "." in the path
             allpix.OUTPUT_FILE = allpix.OUTPUT_FOLDER.replace("output/", "")
 
-            print(f"Running sim with parameters: {keV}_{coulomb_field_limit}_{enable_coulomb}")
+            print(f"Running sim with parameters: {keV}_d{enable_diffusion}_cr{enable_coulomb}")
             
             start_time = time.time()
             allpix.run_sim()
@@ -120,9 +136,12 @@ for keV in keVs:
                 rms_object = {
                     "keV":keV,
                     "coulomb_field_limit":coulomb_field_limit,
+                    "enable_diffusion": enable_diffusion,
                     "enable_coulomb": enable_coulomb,
                     "max_charge_groups": max_charge_groups,
                     "sim_time": end_time - start_time,
+                    "charge_per_step": charge_per_step,
+                    "time_step": time_step,
                     "t_rms": np.array(total_graph_list[0].GetX()),
                     "e_rms": np.array(total_graph_list[0].GetY()),
                     "h_rms": np.array(total_graph_list[1].GetY()),
@@ -138,11 +157,11 @@ for keV in keVs:
             # TODO: Read the other data (more convenient here)
 
 # Ensure the output folder exists
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+if not os.path.exists(output_object_folder):
+    os.makedirs(output_object_folder)
 
 # Define the output file path
-output_file_path = os.path.join(output_folder, "output_lists.pkl")
+output_file_path = os.path.join(output_object_folder, "output_lists.pkl")
 
 # Write the output_lists dictionary to the file
 with open(output_file_path, "wb") as f:
@@ -150,5 +169,7 @@ with open(output_file_path, "wb") as f:
 
 print(f"Output lists saved to {output_file_path}")
 
+total_end_time = time.time()
 
+print(f'Total time: {total_end_time-total_start_time}')
 
