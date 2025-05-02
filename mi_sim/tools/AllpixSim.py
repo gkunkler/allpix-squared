@@ -69,7 +69,7 @@ class AllpixObject:
         self.BIAS_VOLTAGE = 0
         self.MAX_CHARGE_GROUPS = 1000
         self.CHARGE_PER_STEP = 1
-        self.INTEGRATION_TIME = 15 #ns
+        self.INTEGRATION_TIME = 20 #ns
         self.TIME_STEP = 0.2 #ns
         self.COULOMB_FIELD_LIMIT = 5e5 #V/cm
         self.ENABLE_DIFFUSION = 1
@@ -77,16 +77,18 @@ class AllpixObject:
         self.PROPAGATE_ELECTRONS = 1
         self.PROPAGATE_HOLES = 0
         self.INCLUDE_MIRROR = 0
-        self.MOBILITY_E = 1000 #cm*cm/V/s
-        self.MOBILITY_H = 100 #cm*cm/V/s
+        # self.MOBILITY_E = 1000 #cm*cm/V/s
+        # self.MOBILITY_H = 100 #cm*cm/V/s
+        self.RELATIVE_PERMITIVITY = 11.7 #10.2 for CZT, 11.7 for Si
         
         self.WORKERS = 4
         
         # THe following variables are not included in the file only used in 
         # this class
+        self.CONFIGURATION_DESCRIPTION = ""
         self.OUTPUT_FOLDER_TEMP = self.OUTPUT_FOLDER + "_{}"        
         self.FOLDER_COUNTER = 1
-        self.excluded = ["OUTPUT_FOLDER_TEMP", "FOLDER_COUNTER", "excluded"]
+        self.excluded = ["OUTPUT_FOLDER_TEMP", "FOLDER_COUNTER", "excluded", "CONFIGURATION_DESCRIPTION"]
         
     def check_folder(self):
         if os.path.exists(self.OUTPUT_FOLDER):
@@ -100,7 +102,7 @@ class AllpixObject:
             
     def saveSimulationParameters(self, file = None):
         if file is None:
-            file = r"{}".format(self.OUTPUT_FOLDER+"/parameters.txt")
+            file = r"{}".format(self.OUTPUT_FOLDER+f"/parameters.txt")
         variables = {attr:value for (attr,value) in self.__dict__.items()}
         
         
@@ -198,7 +200,7 @@ class AllpixObject:
         
         with open(self.PATH_TO_SCRIPT + self.CONFIG_FILE, 'w') as file:
             file.write(file_data)
-        with open(self.OUTPUT_FOLDER+"/configuration.conf", 'w') as file:
+        with open(self.OUTPUT_FOLDER+f"/configuration.conf", 'w') as file:
             file.write(file_data)
 
         # Run it
@@ -206,9 +208,9 @@ class AllpixObject:
         # print(f"Running command: {"allpix -c "+self.PATH_TO_SCRIPT + self.CONFIG_FILE}")
         
         if self.WORKERS > 1:
-            os.system("bin/allpix -c "+self.PATH_TO_SCRIPT + self.CONFIG_FILE+" -j {}".format(self.WORKERS))
+            os.system("bin/allpix -c " + self.PATH_TO_SCRIPT + self.CONFIG_FILE+" -j {}".format(self.WORKERS))
         else:
-            os.system("bin/allpix -c "+self.PATH_TO_SCRIPT + self.CONFIG_FILE)
+            os.system("bin/allpix -c " + self.PATH_TO_SCRIPT + self.CONFIG_FILE)
 
         
 if __name__ == "__main__":

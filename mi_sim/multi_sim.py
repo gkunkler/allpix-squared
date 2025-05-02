@@ -12,6 +12,7 @@ import time
 import ROOT
 import os
 import pickle
+import shutil # Used to copy files
 
 total_start_time = time.time()
 
@@ -26,7 +27,8 @@ output_list = []
 
 num_pulses = 100 # Number of particles per event
 
-keVs = [0.5,5,10] # ionization energy = 3.64eV
+# keVs = [0.5,5,10] # ionization energy = 3.64eV
+keV = 1
 
 # charges_per_steps = {0.5:14, 1:28, 3:83, 5:138, 10:275} # 0.1% of total charge (num_pulses*keV*1000/ionization_energy * 0.001) -> approx. 1000 charge groups
 charge_per_step = 1
@@ -35,21 +37,27 @@ coulomb_field_limit = 4e5 #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
 # max_charge_groups_list = [1000]
 max_charge_groups = 1000
 
-time_step = 0.1
+time_step = 0.05
+integration_time = 10 # ns
+bias_voltages = [0,-50,-100,-200,-300] # V
 
 # enable_coulomb = 1
 
-for keV in keVs:
+# for keV in keVs:
+for bias_voltage in bias_voltages:
     # charge_per_step = charges_per_steps[keV]
 
     # for coulomb_field_limit in coulomb_field_limits:
-    for enable_diffusion in [0,1]:
+    # for enable_diffusion in [0,1]:
+    for propagation_type in [[1,0], [0,1], [1,1]]: # [d,cr]
+        enable_diffusion = propagation_type[0]
+        enable_coulomb = propagation_type[1]
 
         nPulses = num_pulses
 
         # for max_charge_groups in max_charge_groups_list:
         # for time_step in time_steps:
-        for enable_coulomb in [0,1]:
+        for propagation_charges in [[1,0,0], [1,1,0], [1,0,1], [1,1,1]]: # [e,h,m]
             allpix = AllpixObject()
 
             allpix.LOG_LEVEL            = "STATUS" #STATUS, INFO, WARNING, DEBUG
@@ -79,7 +87,8 @@ for keV in keVs:
             # allpix.MAX_STEP_LENGTH      = 0.1 #um
             # allpix.CHARGE_PER_STEP      = charge_per_step
             allpix.TIME_STEP            = time_step #ns
-            # allpix.INTEGRATION_TIME     = 20 #ns # Generally much less is needed, this is for the prototype with incomplete E-field
+            allpix.BIAS_VOLTAGE         = bias_voltage # V
+            allpix.INTEGRATION_TIME     = integration_time # Generally much less is needed, this is for the prototype with incomplete E-field
             # allpix.INDUCED_DISTANCE     = 1
             
             allpix.WORKERS              = 1 # default 4
@@ -88,6 +97,9 @@ for keV in keVs:
             allpix.ENABLE_DIFFUSION     = enable_diffusion
             allpix.ENABLE_COULOMB       = enable_coulomb
             allpix.COULOMB_FIELD_LIMIT  = coulomb_field_limit
+            allpix.PROPAGATE_ELECTRONS = propagation_charges[0]
+            allpix.PROPAGATE_HOLES = propagation_charges[1]
+            allpix.INCLUDE_MIRROR = propagation_charges[2]
 
             allpix.SOURCE_ENERGY = keV
             allpix.NUMBER_OF_PARTICLES     = nPulses
@@ -109,11 +121,13 @@ for keV in keVs:
             # allpix.E_FIELD_FILE         = "pathToEFieldInitFile"
             # allpix.W_POTENTIAL_FILE     = "pathToWPotentialInitFile"
 
-            allpix.OUTPUT_FOLDER = output_folder
-            allpix.OUTPUT_FOLDER += f"/{keV}_d{enable_diffusion}_cr{enable_coulomb}".replace(".","p") #replace if there are "." in the path
-            allpix.OUTPUT_FILE = allpix.OUTPUT_FOLDER.replace("output/", "")
+            allpix.CONFIGURATION_DESCRIPTION = f"d{enable_diffusion}_cr{enable_coulomb}_{"e" if allpix.PROPAGATE_ELECTRONS == 1 else ""}{"h" if allpix.PROPAGATE_HOLES == 1 else ""}{"m" if allpix.INCLUDE_MIRROR == 1 else ""}_{bias_voltage}".replace(".","p") #replace if there are "." in the path
 
-            print(f"Running sim with parameters: {keV}_d{enable_diffusion}_cr{enable_coulomb}")
+            allpix.OUTPUT_FOLDER = output_folder
+            allpix.OUTPUT_FOLDER += f"/{allpix.CONFIGURATION_DESCRIPTION}"
+            allpix.OUTPUT_FILE = allpix.OUTPUT_FOLDER.replace("output/", "") + "/data.root"
+
+            print(f"Running sim with parameters: {allpix.CONFIGURATION_DESCRIPTION}")
             
             start_time = time.time()
             allpix.run_sim()
@@ -123,6 +137,12 @@ for keV in keVs:
             filePath = "output/modules.root" # when run from allpix-squared directory
             print(f'Reading data from {filePath}')
             file = ROOT.TFile(filePath) # read the file from the specified file path
+
+            # Copy the modules.root file to the specified output folder
+            # output_file_path = os.path.join(allpix.OUTPUT_FOLDER, f"modules_{allpix.CONFIGURATION_DESCRIPTION}.root")
+            # file.Copy(file)
+            shutil.copy(filePath,allpix.OUTPUT_FOLDER)
+            print(f"Copied {filePath} to {allpix.OUTPUT_FOLDER}")
 
             detectorName = "DetectorModel"
             try:
