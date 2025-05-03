@@ -37,8 +37,9 @@ coulomb_field_limit = 4e5 #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
 # max_charge_groups_list = [1000]
 max_charge_groups = 1000
 
-time_step = 0.05
-integration_time = 10 # ns
+time_step = 0.02
+# integration_time = 10 # ns
+integration_times = [5,10,25] # ns
 bias_voltages = [0,-50,-100,-200,-300] # V
 
 # enable_coulomb = 1
@@ -49,15 +50,24 @@ for bias_voltage in bias_voltages:
 
     # for coulomb_field_limit in coulomb_field_limits:
     # for enable_diffusion in [0,1]:
-    for propagation_type in [[1,0], [0,1], [1,1]]: # [d,cr]
-        enable_diffusion = propagation_type[0]
-        enable_coulomb = propagation_type[1]
+    # for propagation_type in [[1,0], [0,1], [1,1]]: # [d,cr]
+        # enable_diffusion = propagation_type[0]
+        # enable_coulomb = propagation_type[1]
+    for integration_time in integration_times:
 
         nPulses = num_pulses
 
         # for max_charge_groups in max_charge_groups_list:
         # for time_step in time_steps:
-        for propagation_charges in [[1,0,0], [1,1,0], [1,0,1], [1,1,1]]: # [e,h,m]
+        # for propagation_charges in [[1,0,0], [1,1,0], [1,0,1], [1,1,1]]: # [e,h,m]
+        for propagation_config in [[1,0,1,0,0], [0,1,1,0,0], [1,1,1,0,0], [1,1,1,1,0], [1,1,1,0,1], [1,1,1,1,1]]: #[d,cr,e,h,m]
+
+            enable_diffusion = propagation_config[0]
+            enable_coulomb = propagation_config[1]
+            propagate_electrons = propagation_config[2]
+            propagate_holes = propagation_config[3]
+            include_mirror = propagation_config[4]
+                   
             allpix = AllpixObject()
 
             allpix.LOG_LEVEL            = "STATUS" #STATUS, INFO, WARNING, DEBUG
@@ -97,9 +107,9 @@ for bias_voltage in bias_voltages:
             allpix.ENABLE_DIFFUSION     = enable_diffusion
             allpix.ENABLE_COULOMB       = enable_coulomb
             allpix.COULOMB_FIELD_LIMIT  = coulomb_field_limit
-            allpix.PROPAGATE_ELECTRONS = propagation_charges[0]
-            allpix.PROPAGATE_HOLES = propagation_charges[1]
-            allpix.INCLUDE_MIRROR = propagation_charges[2]
+            allpix.PROPAGATE_ELECTRONS = propagate_electrons
+            allpix.PROPAGATE_HOLES = propagate_holes
+            allpix.INCLUDE_MIRROR = include_mirror
 
             allpix.SOURCE_ENERGY = keV
             allpix.NUMBER_OF_PARTICLES     = nPulses
@@ -121,7 +131,7 @@ for bias_voltage in bias_voltages:
             # allpix.E_FIELD_FILE         = "pathToEFieldInitFile"
             # allpix.W_POTENTIAL_FILE     = "pathToWPotentialInitFile"
 
-            allpix.CONFIGURATION_DESCRIPTION = f"d{enable_diffusion}_cr{enable_coulomb}_{"e" if allpix.PROPAGATE_ELECTRONS == 1 else ""}{"h" if allpix.PROPAGATE_HOLES == 1 else ""}{"m" if allpix.INCLUDE_MIRROR == 1 else ""}_{bias_voltage}".replace(".","p") #replace if there are "." in the path
+            allpix.CONFIGURATION_DESCRIPTION = f"d{enable_diffusion}_cr{enable_coulomb}_{"e" if propagate_electrons == 1 else ""}{"h" if propagate_holes == 1 else ""}{"m" if include_mirror == 1 else ""}_{bias_voltage}V_{integration_time}ns".replace(".","p") #replace if there are "." in the path
 
             allpix.OUTPUT_FOLDER = output_folder
             allpix.OUTPUT_FOLDER += f"/{allpix.CONFIGURATION_DESCRIPTION}"
@@ -154,7 +164,9 @@ for bias_voltage in bias_voltages:
                 e_graph_list = e_multigraph.GetListOfGraphs()
 
                 rms_object = {
+                    "name": allpix.CONFIGURATION_DESCRIPTION,
                     "keV":keV,
+                    "bias_voltage":bias_voltage,
                     "coulomb_field_limit":coulomb_field_limit,
                     "enable_diffusion": enable_diffusion,
                     "enable_coulomb": enable_coulomb,

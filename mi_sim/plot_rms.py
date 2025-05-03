@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import math
-from tools.fitting_functions import rms_initial_slope, rms_fit
+from tools.fitting_functions import rms_initial_slope, rms_fit, rykov_fit
 
 ROOT.gSystem.Load("lib/libAllpixObjects.so") # Load the dictionaries for Allpix objects
 

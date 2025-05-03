@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import math
+from scipy.stats import rayleigh
 
 ROOT.gSystem.Load("lib/libAllpixObjects.so") # Load the dictionaries for Allpix objects
 
 # File Input
-filePath = "output/test_output.root" # when run from allpix-squared directory
+filePath = "output/multi-time-250503/raw/d1_cr1_eh_-200V_25ns/data.root" # when run from allpix-squared directory
 print(f'Reading data from {filePath}')
 file = ROOT.TFile(filePath) # read the file from the specified file path
 
@@ -97,8 +98,8 @@ for iEvent in range(num_events):
 
 num_pixels_x = 1
 num_pixels_y = 1
-pixel_width = 0.330 #mm
-pixel_height = 2 #mm
+pixel_width = 0.650 #mm
+pixel_height = 0.65 #mm
 
 # Plot Deposited & Propagated Charge Distributions
 if (containsDC or containsPC) and num_events <= 5:
@@ -123,13 +124,19 @@ if (containsDC or containsPC) and num_events <= 5:
         charge_axs[0].set_title('Deposited Charges')
         charge_axs[1].set_title('Propagated Charges')
 
-        charge_axs[0].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
-        charge_axs[0].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
-        charge_axs[1].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
-        charge_axs[1].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
-
-    # Plot separate 2D distributions for propagated holes and electrons
+        # charge_axs[0].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
+        # charge_axs[0].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
+        # charge_axs[1].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
+        # charge_axs[1].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
+        width = 0.03
+        charge_axs[0].set_xlim(-width,width)
+        charge_axs[0].set_ylim(-width,width)
+        charge_axs[1].set_xlim(-width,width)
+        charge_axs[1].set_ylim(-width,width)
+    
     if containsPC:
+
+        # Plot separate 2D distributions for propagated holes and electrons
         dist_fig, dist_axs = plt.subplots(1,2, constrained_layout=True)
         for i in range(num_events):
             pcGPos = propagated_data[i]
@@ -147,10 +154,44 @@ if (containsDC or containsPC) and num_events <= 5:
         dist_axs[0].set_title('Propagated Electrons')
         dist_axs[1].set_title('Propagated Holes')
 
-        dist_axs[0].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
-        dist_axs[0].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
-        dist_axs[1].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
-        dist_axs[1].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
+        # dist_axs[0].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
+        # dist_axs[0].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
+        # dist_axs[1].set_xlim(-num_pixels_x/2*pixel_width, num_pixels_x/2*pixel_width)
+        # dist_axs[1].set_ylim(-num_pixels_y/2*pixel_width, num_pixels_y/2*pixel_width)
+        width = 0.03
+        dist_axs[0].set_xlim(-width,width)
+        dist_axs[0].set_ylim(-width,width)
+        dist_axs[1].set_xlim(-width,width)
+        dist_axs[1].set_ylim(-width,width)
+
+        # Plot distance from origin from propagated electrons
+        rho_fig, rho_ax = plt.subplots(constrained_layout=True, dpi=150)
+        all_rho = []
+        for i in range(num_events):
+            pcGPos = propagated_data[i]
+            e_selector = np.array(pcGPos['type'])==-1
+            rho = np.sqrt(np.array(pcGPos['x'])[e_selector] * np.array(pcGPos['x'])[e_selector] + np.array(pcGPos['y'])[e_selector] * np.array(pcGPos['y'])[e_selector])
+            all_rho.extend(rho)    
+
+        rho_mean = np.average(all_rho)
+        rho_ax.hist(all_rho, bins=num_bins)
+        rho_ax.vlines([rho_mean], [0], [100], linestyle='--', color='k', label=f'Mean: {np.round(rho_mean,5)} mm')
+        rho_ax.set_xlabel('Distance from origin [mm]')
+        rho_ax.set_ylabel('Counts')
+        rho_ax.set_title('Spread of Propagated Electrons')
+        rho_ax.set_xlim(0,width*1.5)
+        rho_ax.set_ylim(0,50)
+        rho_ax.legend()
+
+        # # Fit a Rayleigh distribution to the histogram
+
+        # # Fit the Rayleigh distribution
+        # params = rayleigh.fit(all_rho)
+        # x = np.linspace(0, max(all_rho), 100)
+
+        # # Scale the PDF to match the histogram
+        # rho_ax.plot(x, rayleigh.pdf(x), label='Rayleigh Fit', color='red')
+        # rho_ax.legend()
 
     # Plot scatter with one or both of Deposited & Propagated Charge Counts
     scatter_fig = plt.figure()
