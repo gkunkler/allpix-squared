@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of detector fields
  *
- * @copyright Copyright (c) 2018-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2018-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -68,25 +68,32 @@ namespace allpix {
     template <typename T = ROOT::Math::XYZVector> using FieldFunction = std::function<T(const ROOT::Math::XYZPoint& pos)>;
 
     /**
+     * @brief FieldTable is a linearized 5x5 matrix
+     */
+    class FieldTable : public std::array<double, 25> {
+    public:
+        /**
+         * @brief Helper function to translate an iterator of the array into a coordinate of the 5x5 matrix.
+         *
+         * The central pixel has coordinates 0,0, the others around positive or negative values, respectively. This allows
+         * to directly add these coordinates to any pixel index of the sensor.
+         *
+         * @param it Iterator to the array
+         * @return Pair of x and y coordinates.
+         */
+        std::pair<int, int> getCoordinates(const FieldTable::iterator& it) {
+            const auto i = std::distance(this->begin(), it);
+            return {static_cast<int>(i % 5) - 2, static_cast<int>(i / 5) - 2};
+        }
+    };
+
+    /**
      * @brief Helper function to invert the field vector when flipping the field direction at pixel/field boundaries
      * @param field Field value, templated to support vector fields and scalar fields
      * @param x     Boolean to indicate flipping in x-direction
      * @param y     Boolean to indicate flipping in y-direction
      */
     template <typename T> void flip_vector_components(T& field, bool x, bool y);
-
-    /*
-     * Vector field template specialization of helper function for field flipping
-     */
-    template <> inline void flip_vector_components<ROOT::Math::XYZVector>(ROOT::Math::XYZVector& vec, bool x, bool y) {
-        vec.SetXYZ((x ? -vec.x() : vec.x()), (y ? -vec.y() : vec.y()), vec.z());
-    }
-
-    /*
-     * Scalar field template specialization of helper function for field flipping
-     * Here, no inversion of the field components is required
-     */
-    template <> inline void flip_vector_components<double>(double&, bool, bool) {}
 
     /**
      * @brief Field instance of a detector
@@ -95,7 +102,6 @@ namespace allpix {
      * scaling or offset parameters.
      */
     template <typename T, size_t N = 3> class DetectorField {
-        friend class Detector;
 
     public:
         /**
@@ -162,13 +168,30 @@ namespace allpix {
                          std::pair<double, double> thickness_domain,
                          FieldType type = FieldType::CUSTOM);
 
-    private:
         /**
          * @brief Set the detector model this field is used for
          * @param model The detector model
          */
-        void set_model(const std::shared_ptr<DetectorModel>& model) { model_ = model; }
+        void setModel(const std::shared_ptr<DetectorModel>& model) { model_ = model; }
 
+    protected:
+        /**
+         * @brief Helper to calculate field size normalization factors and configure them
+         * @param bins The bins of the flat field array
+         * @param size Physical extent of the field
+         * @param mapping Specification of the mapping of the field onto the pixel plane
+         * @param scales Scaling factors for the field size, given in fractions of the field size in x and y
+         * @param offset Offset of the field from the pixel center, given in fractions of the field size in x and y
+         * @param thickness_domain Domain in local coordinates in the thickness direction where the field holds
+         */
+        void set_grid_parameters(std::array<size_t, 3> bins,
+                                 std::array<double, 3> size,
+                                 FieldMapping mapping,
+                                 std::array<double, 2> scales,
+                                 std::array<double, 2> offset,
+                                 std::pair<double, double> thickness_domain);
+
+    private:
         /**
          * @brief Helper function to retrieve the return type from a calculated index of the field data vector
          * @param offset The calculated global index to start from
@@ -177,14 +200,27 @@ namespace allpix {
         template <std::size_t... I> inline auto get_impl(size_t offset, std::index_sequence<I...>) const noexcept;
 
         /**
-         * @brief Helper function to calculate the field index based on the distance from its center and to return the values
+         * @brief Helper function to calculate the field index based on the distance from its center
+         * @param index Absolute index in the field grid
          * @param x Distance in local-coordinate x from the center of the field to obtain the values for
          * @param y Distance in local-coordinate y from the center of the field to obtain the values for
          * @param z Distance in local-coordinate z from the center of the field to obtain the values for
          * @param extrapolate_z Flag whether we should extrapolate
-         * @return Value(s) of the field at the queried point
          */
-        T get_field_from_grid(const double x, const double y, const double z, const bool extrapolate_z) const noexcept;
+        inline bool get_grid_index(
+            size_t& index, const double x, const double y, const double z, const bool extrapolate_z) const noexcept;
+
+        /**
+         * @brief Map x and y coordinates of a position and a reference point onto a pixel given the chosen mapping.
+         *
+         * @param pos Position to calculate coordinates for
+         * @param ref Reference position to calculate relative position to
+         *
+         * @return Tuple with relative x and y coordinates, mapped into the chosen area, and booleans indicating whether
+         *         flipping of vector components is necessary
+         */
+        inline std::tuple<double, double, bool, bool> map_coordinates(const ROOT::Math::XYZPoint& pos,
+                                                                      const ROOT::Math::XYPoint& ref) const;
 
         /**
          * @brief Fast floor-to-int implementation without overflow protection as std::floor

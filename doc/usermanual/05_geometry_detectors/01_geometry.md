@@ -1,5 +1,5 @@
 ---
-# SPDX-FileCopyrightText: 2022-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2022-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: CC-BY-4.0
 title: "Simulation Geometry"
 weight: 1
@@ -67,6 +67,13 @@ properties attached to it:
 The detector configuration is provided in the detector configuration file as explained in
 [Section 3.3](../03_getting_started/03_detector_configuration.md).
 
+{{% alert title="Note" color="info" %}}
+The framework parameter `random_seed_core` controls the seed used for the pseudo-random number generator that is responsible
+for geometry operations before the simulation commences. Most notably, this concerns the alignment of individual detectors as
+described above. By fixing the `random_seed_core` parameter but leaving `random_seed` free, multiple independent simulations
+can be conducted with the same geometric alignment of detectors.
+{{% /alert %}}
+
 ## Coordinate systems
 
 Local coordinate systems for each detector and a global frame of reference for the full setup are defined. The global
@@ -92,7 +99,8 @@ The global reference for time measurements is the beginning of the event, i.e. 
 setup. The local time reference is the time of entry of the *first* primary particle of the event into the sensor. This means
 that secondary particles created within the sensor inherit the local time reference from their parent particles in order to
 have a uniform time reference in the sensor. It should be noted that Monte Carlo particles that start the local time frame on
-different detectors do not necessarily have to belong to the same particle track.
+different detectors do not necessarily have to belong to the same particle track. Few exceptions to these definitions exist and
+are commented on in the corresponding module descriptions.
 
 ## Changing and accessing the geometry
 

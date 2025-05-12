@@ -1,5 +1,5 @@
 ---
-# SPDX-FileCopyrightText: 2017-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2017-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: CC-BY-4.0 OR MIT
 title: "DopingProfileReader"
 description: "Doping profile loading for a detector"
@@ -14,6 +14,8 @@ A doping profile is required for simulating the lifetime of charge carriers.
 It is not used for the calculation of the electric field inside the sensor.
 The profile is extrapolated along `z` such that if a position outside the sensor is queried, the last value available at the sensor surface is returned.
 This precludes edge effects from charge carriers moving at the sensor surfaces.
+
+The designation of the dopants follows the common practice of assigning negative values to p-doped silicon and positive values to n-doped silicon.
 
 The following models for the doping profile can be used:
 

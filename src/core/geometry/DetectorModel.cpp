@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of detector model
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -15,6 +15,7 @@
 #include "core/geometry/HexagonalPixelDetectorModel.hpp"
 #include "core/geometry/PixelDetectorModel.hpp"
 #include "core/geometry/RadialStripDetectorModel.hpp"
+#include "core/geometry/StaggeredPixelDetectorModel.hpp"
 #include "tools/liang_barsky.h"
 
 #include <Math/Translation3D.h>
@@ -55,6 +56,8 @@ std::shared_ptr<DetectorModel> DetectorModel::factory(const std::string& name, c
         model = std::make_shared<RadialStripDetectorModel>(name, assembly, reader, config);
     } else if(geometry == "hexagonal") {
         model = std::make_shared<HexagonalPixelDetectorModel>(name, assembly, reader, config);
+    } else if(geometry == "staggered") {
+        model = std::make_shared<StaggeredPixelDetectorModel>(name, assembly, reader, config);
     } else {
         LOG(FATAL) << "Model file " << config.getFilePath() << " geometry parameter is not valid";
         // FIXME: The model can probably be silently ignored if we have more model readers later

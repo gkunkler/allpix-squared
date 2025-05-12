@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of detector histogramming module
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -90,7 +90,8 @@ namespace allpix {
         ROOT::Math::XYVector track_resolution_{};
 
         // Histograms to output
-        Histogram<TH2D> hit_map, hit_map_global, hit_map_local, hit_map_local_mc, charge_map, cluster_map, polar_hit_map;
+        Histogram<TH2D> hit_map, hit_map_global, hit_map_global_mc, hit_map_local, hit_map_local_mc, charge_map, cluster_map,
+            polar_hit_map;
         Histogram<TProfile2D> cluster_size_map_local, cluster_size_map, cluster_size_x_map, cluster_size_y_map;
         Histogram<TProfile2D> cluster_charge_map, seed_charge_map;
         Histogram<TProfile2D> residual_map, residual_x_map, residual_y_map, residual_detector, residual_x_detector,

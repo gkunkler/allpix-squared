@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2017-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: MIT
 
 # CMake file for the Weighting Potential Generator of the Allpix Squared framework
@@ -42,6 +42,7 @@ ADD_EXECUTABLE(
     ${ALLPIX_SRC}/core/geometry/PixelDetectorModel.cpp
     ${ALLPIX_SRC}/core/geometry/HexagonalPixelDetectorModel.cpp
     ${ALLPIX_SRC}/core/geometry/RadialStripDetectorModel.cpp
+    ${ALLPIX_SRC}/core/geometry/StaggeredPixelDetectorModel.cpp
     ${ALLPIX_SRC}/core/module/ThreadPool.cpp)
 
 # Include Eigen dependency

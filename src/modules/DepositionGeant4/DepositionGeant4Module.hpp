@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of Geant4 deposition module
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 
+#include <G4MagneticField.hh>
 #include <G4UserLimits.hh>
 
 #include "core/config/Configuration.hpp"
@@ -132,6 +133,17 @@ namespace allpix {
 
         // Mutex used for the construction of histograms
         std::mutex histogram_mutex_;
+    };
+
+    class MagneticField : public G4MagneticField {
+    protected:
+        GeometryManager* geometry_manager_;
+
+    public:
+        explicit MagneticField(GeometryManager* geometry_manager);
+        ~MagneticField() override = default;
+        // The Geant4 API expects a const double Point[4], not the std::array<> the linter suggests
+        virtual void GetFieldValue(const double Point[4], double* Bfield) const override; // NOLINT
     };
 } // namespace allpix
 

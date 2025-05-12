@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of charge-sensitive amplifier digitization module
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -75,7 +75,7 @@ namespace allpix {
     private:
         // Control of module output settings
         bool output_plots_{}, output_pulsegraphs_{};
-        bool store_tot_{false}, store_toa_{false}, ignore_polarity_{};
+        bool store_tot_{false}, store_toa_{false}, sync_event_time_{false}, ignore_polarity_{};
         Messenger* messenger_;
         DigitizerType model_;
 
@@ -85,9 +85,11 @@ namespace allpix {
         std::unique_ptr<TGraph> graph_impulse_response_;
         // Time unit on the response function graph
         double graph_time_unit_;
+        // Amplitude unit on the response function graph
+        double graph_amplitude_unit_;
 
         // Parameters of the electronics: Noise, time-over-threshold logic
-        double sigmaNoise_{}, clockToT_{}, clockToA_{}, threshold_{};
+        double sigmaNoise_{}, clockToT_{}, clockToA_{}, threshold_{}, tdc_offset_{};
 
         // Helper variables for transfer function
         double integration_time_{};
@@ -102,10 +104,12 @@ namespace allpix {
          * @brief Calculate time of first threshold crossing
          * @param timestep Step size of the input pulse
          * @param pulse    Pulse after amplification and electronics noise
+         * @param time_offset Time offset with respect to the beginning of the event
          * @return Tuple containing information about threshold crossing: Boolean (true if crossed), unsigned int (number
          *         of ToA clock cycles before crossing) and double (time of crossing)
          */
-        std::tuple<bool, unsigned int, double> get_toa(double timestep, const std::vector<double>& pulse) const;
+        std::tuple<bool, unsigned int, double>
+        get_toa(double timestep, const std::vector<double>& pulse, double time_offset) const;
 
         /**
          * @brief Calculate time-over-threshold

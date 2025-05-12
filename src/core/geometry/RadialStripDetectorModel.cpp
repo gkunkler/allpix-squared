@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of radial strip detector model
  *
- * @copyright Copyright (c) 2022-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2022-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -196,6 +196,19 @@ std::pair<int, int> RadialStripDetectorModel::getPixelIndex(const ROOT::Math::XY
         (polar_pos.phi() + stereo_angle_ + pitch * number_of_strips_.at(static_cast<unsigned int>(strip_y)) / 2) / pitch));
 
     return {strip_x, strip_y};
+}
+
+std::set<Pixel::Index> RadialStripDetectorModel::getPixels() const {
+    std::set<Pixel::Index> pixels;
+
+    for(int x = 0; x < static_cast<int>(number_of_pixels_.x()); x++) {
+        for(int y = 0; y < static_cast<int>(number_of_pixels_.y()); y++) {
+            if(isWithinMatrix(x, y)) {
+                pixels.insert({x, y});
+            }
+        }
+    }
+    return pixels;
 }
 
 std::set<Pixel::Index> RadialStripDetectorModel::getNeighbors(const Pixel::Index& idx, const size_t distance) const {

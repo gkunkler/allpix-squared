@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of charge sensitive amplifier digitization module
  *
- * @copyright Copyright (c) 2020-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2020-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -49,6 +49,8 @@ CSADigitizerModule::CSADigitizerModule(Configuration& config, Messenger* messeng
     config_.setDefault<bool>("output_plots", config_.get<bool>("output_pulsegraphs"));
     config_.setDefault<int>("output_plots_scale", Units::get(30, "ke"));
     config_.setDefault<int>("output_plots_bins", 100);
+    config_.setDefault<bool>("sync_event_time", false);
+    config_.setDefault<double>("tdc_offset", Units::get(0.0, "ns"));
 
     if(model_ == DigitizerType::SIMPLE) {
         // defaults for the "simple" parametrisation
@@ -65,7 +67,8 @@ CSADigitizerModule::CSADigitizerModule(Configuration& config, Messenger* messeng
         config_.setDefault<double>("weak_inversion_slope", 1.5);
         config_.setDefault<double>("temperature", 293.15);
     } else if(model_ == DigitizerType::GRAPH) {
-        config_.setDefault<double>("graph_time_unit_", Units::get(1, "s"));
+        config_.setDefault<double>("graph_time_unit", Units::get(1, "s"));
+        config_.setDefault<double>("graph_amplitude_unit", Units::get(1.0, "V/e"));
     }
 
     // Copy some variables from configuration to avoid lookups:
@@ -81,6 +84,10 @@ CSADigitizerModule::CSADigitizerModule(Configuration& config, Messenger* messeng
         store_tot_ = true;
         clockToT_ = config_.get<double>("clock_bin_tot");
     }
+
+    // Synchronize the clock binning to global simulation time
+    sync_event_time_ = config_.get<bool>("sync_event_time");
+    tdc_offset_ = config_.get<double>("tdc_offset");
 
     sigmaNoise_ = config_.get<double>("sigma_noise");
     threshold_ = config_.get<double>("threshold");
@@ -173,6 +180,7 @@ CSADigitizerModule::CSADigitizerModule(Configuration& config, Messenger* messeng
         const auto graph_path = config_.getPath("graph_file", true);
         graph_impulse_response_ = std::make_unique<TGraph>(graph_path.c_str(), "%lg,%lg");
         graph_time_unit_ = config_.get<double>("graph_time_unit");
+        graph_amplitude_unit_ = config_.get<double>("graph_amplitude_unit");
     }
 
     output_plots_ = config_.get<bool>("output_plots");
@@ -261,7 +269,8 @@ void CSADigitizerModule::run(Event* event) {
                                << graph_impulse_response_->Eval(timestep * static_cast<double>(itimepoint) /
                                                                 graph_time_unit_);
                     impulse_response_function_.push_back(
-                        graph_impulse_response_->Eval(timestep * static_cast<double>(itimepoint) / graph_time_unit_));
+                        graph_impulse_response_->Eval(timestep * static_cast<double>(itimepoint) / graph_time_unit_) *
+                        graph_amplitude_unit_);
                 }
             }
 
@@ -333,8 +342,13 @@ void CSADigitizerModule::run(Event* event) {
         // Store amplified pulse fir dispatch
         pulses.emplace_back(pixel, amplified_pulse, &pixel_charge);
 
+        double time_offset = tdc_offset_;
+        if(sync_event_time_) {
+            time_offset += pixel_charge.getGlobalTime();
+        }
+
         // Find threshold crossing - if any:
-        auto arrival = get_toa(timestep, amplified_pulse);
+        auto arrival = get_toa(timestep, amplified_pulse, time_offset);
         if(!std::get<0>(arrival)) {
             LOG(DEBUG) << "Amplified signal never crossed threshold, continuing.";
             continue;
@@ -382,12 +396,13 @@ void CSADigitizerModule::run(Event* event) {
     }
 }
 
-std::tuple<bool, unsigned int, double> CSADigitizerModule::get_toa(double timestep, const std::vector<double>& pulse) const {
+std::tuple<bool, unsigned int, double>
+CSADigitizerModule::get_toa(double timestep, const std::vector<double>& pulse, double time_offset) const {
 
     LOG(TRACE) << "Calculating time-of-arrival";
     bool threshold_crossed = false;
-    unsigned int comparator_cycles = 0;
-    double arrival_time = 0;
+    auto comparator_cycles = static_cast<unsigned int>(std::floor(time_offset / clockToA_));
+    double arrival_time = time_offset;
 
     // Lambda for threshold calculation:
     auto is_above_threshold = [this](double bin) {
@@ -399,8 +414,8 @@ std::tuple<bool, unsigned int, double> CSADigitizerModule::get_toa(double timest
     };
 
     // Find the point where the signal crosses the threshold, latch ToA
-    while(arrival_time < integration_time_) {
-        auto bin = pulse.at(static_cast<size_t>(std::floor(arrival_time / timestep)));
+    while(arrival_time < integration_time_ + time_offset) {
+        auto bin = pulse.at(static_cast<size_t>(std::floor((arrival_time - time_offset) / timestep)));
         if(is_above_threshold(bin)) {
             threshold_crossed = true;
             break;

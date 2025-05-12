@@ -2,7 +2,7 @@
  * @file
  * @brief Base of detector models
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -49,6 +49,7 @@ namespace allpix {
         DIAMOND,                ///< Diamond
         SILICON_CARBIDE,        ///< Silicon Carbide
         GALLIUM_NITRIDE,        ///< Gallium Nitride
+        CESIUM_LEAD_BROMIDE,    ///< CsPbBr3 (Perovskite)
     };
 
     /**
@@ -447,6 +448,14 @@ namespace allpix {
          * @note This method is purely virtual and must be implemented by the respective concrete detector model classes
          */
         virtual std::pair<int, int> getPixelIndex(const ROOT::Math::XYZPoint& local_pos) const = 0;
+
+        /**
+         * @brief Return a set containing all pixels of the matrix
+         * @return Set of all pixel indices of the matrix
+         *
+         * @note This method is purely virtual and must be implemented by the respective concrete detector model classes
+         */
+        virtual std::set<Pixel::Index> getPixels() const = 0;
 
         /**
          * @brief Return a set containing all pixels neighboring the given one with a configurable maximum distance

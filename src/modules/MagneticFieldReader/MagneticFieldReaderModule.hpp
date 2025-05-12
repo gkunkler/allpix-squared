@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of module to define magnetic fields
  *
- * @copyright Copyright (c) 2017-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2017-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -17,6 +17,7 @@
 #include "core/config/Configuration.hpp"
 #include "core/geometry/GeometryManager.hpp"
 #include "core/messenger/Messenger.hpp"
+#include "tools/field_parser.h"
 
 #include "core/module/Module.hpp"
 
@@ -34,6 +35,7 @@ namespace allpix {
          */
         enum class MagneticField {
             CONSTANT, ///< Constant magnetic field
+            MESH,     ///< Magnetic field defined by a mesh
         };
 
     public:
@@ -52,5 +54,12 @@ namespace allpix {
 
     private:
         GeometryManager* geometryManager_;
+
+        /**
+         * @brief Read field from a file in init or apf format
+         * @return Data of the field read from file
+         */
+        FieldData<double> read_field();
+        static FieldParser<double> field_parser_;
     };
 } // namespace allpix

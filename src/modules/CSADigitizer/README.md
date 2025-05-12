@@ -1,5 +1,5 @@
 ---
-# SPDX-FileCopyrightText: 2020-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2020-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: CC-BY-4.0 OR MIT
 title: "CSADigitizer"
 description: "Digitizer emulating a Charge Sensitive Amplifier"
@@ -43,7 +43,9 @@ Alternatively a custom impulse response function can be provided by using the `c
 
 Noise can be applied to the individual bins of the output pulse, drawn from a normal distribution.
 
-The values stored in `PixelHit` depend on the Time-of-Arrival (ToA) and Time-over-Threshold (ToT) settings. If a ToA clock is defined, then `local_time` will be stored in ToA clock cycles, else in time units. If a ToT clock is defined, then `signal` will be the amount of ToT cycles the pulse is above the threshold, else it will be the integral of the amplified pulse.
+The values stored in `PixelHit` depend on the Time-of-Arrival (ToA) and Time-over-Threshold (ToT) settings.
+If a ToA clock is defined, then `local_time` will be stored in ToA clock cycles, else in time units. Using the parameter `sync_event_time`, this local time will be, in contrast to the framework's definition of local time stamps, aligned with the global time reference, optionally shifted by the value of the parameter `tdc_offset`.
+If a ToT clock is defined, then `signal` will be the amount of ToT cycles the pulse is above the threshold, else it will be the integral of the amplified pulse.
 
 Since the input pulse may have different polarity, it is important to set the threshold accordingly to a positive or negative value, otherwise it may not trigger at all.
 If this behavior is not desired, the `ignore_polarity` parameter can be set to compare only the absolute values of the input and the threshold value.
@@ -57,6 +59,8 @@ If this behavior is not desired, the `ignore_polarity` parameter can be set to c
 * `ignore_polarity`: Select whether polarity of the threshold is ignored, i.e. the absolute values are compared, or if polarity is taken into account. Defaults to `false`.
 * `clock_bin_toa`: Duration of a clock cycle for the time-of-arrival (ToA) clock. If set, the output timestamp is delivered in units of ToA clock cycles, otherwise in nanoseconds.
 * `clock_bin_tot`: Duration of a clock cycle for the time-over-threshold (ToT) clock. If set, the output charge is delivered as time over threshold in units of ToT clock cycles, otherwise the pulse integral is stored instead.
+* `sync_event_time`: Aligns the clock cycle to start counting with the global event time as opposed to starting at the beginning of the detected pulse time. Defaults to false.
+* `tdc_offset`: Adds an offset to the global time for this digitizer. Defaults to 0ns.
 
 ### Parameters for the simplified model
 
@@ -83,7 +87,8 @@ If this behavior is not desired, the `ignore_polarity` parameter can be set to c
 
 * `graph_file`: The path to the .csv file containing the graph of the response function.
 * The file should be written in the following format: `x,y` (comma separated values), where x is the time and y the amplitude of the response function at that time point. Each pair of values should be written in a new line.
-* `graph_time_unit`: Time unit in which the time on the response function graph is expressed. Should be a double.
+* `graph_time_unit`: Time unit in which the time on the response function graph is expressed. Should be a double. Defaults to seconds (s).
+* `graph_amplitude_unit`: The unit in which data on the y-axis of the response function graph is expressed. Should be a double. Defaults to volts per electron (V/e).
 
 ### Plotting parameters
 
@@ -139,12 +144,14 @@ clock_bin_tot = 8ns
 ```
 
 Example for the `graph` model:
+
 ```ini
 [CSADigitizer]
 model = "graph"
 graph_file = /path/to/response_function.csv
 integration_time = 10ns
 graph_time_unit = 1s
+graph_amplitude_unit = 1.0V/e
 ```
 
 [@kleczek]: https://doi.org/10.1109/MIXDES.2015.7208529

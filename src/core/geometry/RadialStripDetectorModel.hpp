@@ -2,7 +2,7 @@
  * @file
  * @brief Parameters of a radial strip detector model
  *
- * @copyright Copyright (c) 2022-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2022-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -245,6 +245,12 @@ namespace allpix {
          * @note No checks are performed on whether these indices represent an existing pixel or are within the pixel matrix.
          */
         std::pair<int, int> getPixelIndex(const ROOT::Math::XYZPoint& position) const override;
+
+        /**
+         * @brief Return a set containing all pixels of the matrix
+         * @return Set of all pixel indices of the matrix
+         */
+        std::set<Pixel::Index> getPixels() const override;
 
         /**
          * @brief Return a set containing all pixels neighboring the given one with a configurable maximum distance

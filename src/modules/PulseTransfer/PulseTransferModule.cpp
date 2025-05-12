@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of pulse transfer module
  *
- * @copyright Copyright (c) 2019-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2019-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -42,6 +42,11 @@ PulseTransferModule::PulseTransferModule(Configuration& config, Messenger* messe
     timestep_ = config_.get<double>("timestep");
     max_depth_distance_ = config_.get<double>("max_depth_distance");
     collect_from_implant_ = config_.get<bool>("collect_from_implant");
+
+    if(config.has("skip_charge_carriers")) {
+        skip_charge_carriers_ = true;
+        skip_carrier_ = config.get<CarrierType>("skip_charge_carriers");
+    }
 
     // Enable multithreading of this module if multithreading is enabled and no per-event output plots are requested:
     // FIXME: Review if this is really the case or we can still use multithreading
@@ -100,6 +105,13 @@ void PulseTransferModule::run(Event* event) {
 
     LOG(DEBUG) << "Received " << propagated_message->getData().size() << " propagated charge objects.";
     for(const auto& propagated_charge : propagated_message->getData()) {
+
+        // Skip charge carriers requested from configuration:
+        if(skip_charge_carriers_ && propagated_charge.getType() == skip_carrier_) {
+            LOG(TRACE) << "Skipping charge carrier of type " << propagated_charge.getType();
+            continue;
+        }
+
         auto pulses = propagated_charge.getPulses();
 
         if(pulses.empty()) {

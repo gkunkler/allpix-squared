@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2017-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: MIT
 
 # Include the dependencies
@@ -27,6 +27,7 @@ ADD_LIBRARY(
     geometry/GeometryManager.cpp
     geometry/HexagonalPixelDetectorModel.cpp
     geometry/RadialStripDetectorModel.cpp
+    geometry/StaggeredPixelDetectorModel.cpp
     Allpix.cpp)
 
 # Link the dependencies

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2016-2024 CERN and the Allpix Squared authors
+# SPDX-FileCopyrightText: 2016-2025 CERN and the Allpix Squared authors
 # SPDX-License-Identifier: MIT
 
 ###############################################
@@ -16,7 +16,7 @@ IF(COMMAND CMAKE_POLICY)
 ENDIF(COMMAND CMAKE_POLICY)
 
 # Set default version
-SET(ALLPIX_VERSION "v3.1.0")
+SET(ALLPIX_VERSION "v3.2.0")
 
 # Set default build type
 IF(NOT CMAKE_BUILD_TYPE)

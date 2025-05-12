@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of a pixel detector model
  *
- * @copyright Copyright (c) 2021-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2021-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -43,11 +43,20 @@ void PixelDetectorModel::validate() {
                 implant.getConfiguration(), "size", "implant depth cannot be larger than sensor thickness");
         }
 
-        // Offset of the collection diode implant from the pixel center, defaults to zero.
-        if(std::fabs(implant.getOffset().x()) + implant.getSize().x() / 2 > pixel_size_.x() / 2 ||
-           std::fabs(implant.getOffset().y()) + implant.getSize().y() / 2 > pixel_size_.y() / 2) {
-            throw InvalidValueError(
-                implant.getConfiguration(), "offset", "implant exceeds pixel cell. Reduce implant size or offset");
+        if(implant.getType() == Implant::Type::BACKSIDE) {
+            // For backside implants, only check that the center of the implant lies within the pixel cell:
+            if(std::fabs(implant.getOffset().x()) > pixel_size_.x() / 2 ||
+               std::fabs(implant.getOffset().y()) > pixel_size_.y() / 2) {
+                throw InvalidValueError(
+                    implant.getConfiguration(), "offset", "implant offset outside cell. Reduce implant offset");
+            }
+        } else {
+            // For frontside implants, check that the implant lies within the pixel cell with its entire size
+            if(std::fabs(implant.getOffset().x()) + implant.getSize().x() / 2 > pixel_size_.x() / 2 ||
+               std::fabs(implant.getOffset().y()) + implant.getSize().y() / 2 > pixel_size_.y() / 2) {
+                throw InvalidValueError(
+                    implant.getConfiguration(), "offset", "implant exceeds pixel cell. Reduce implant size or offset");
+            }
         }
     }
 }
@@ -114,9 +123,21 @@ std::pair<int, int> PixelDetectorModel::getPixelIndex(const ROOT::Math::XYZPoint
     return {pixel_x, pixel_y};
 }
 
+std::set<Pixel::Index> PixelDetectorModel::getPixels() const {
+    std::set<Pixel::Index> pixels;
+    for(int x = 0; x < static_cast<int>(number_of_pixels_.x()); x++) {
+        for(int y = 0; y < static_cast<int>(number_of_pixels_.y()); y++) {
+            pixels.insert({x, y});
+        }
+    }
+    return pixels;
+}
+
 std::set<Pixel::Index> PixelDetectorModel::getNeighbors(const Pixel::Index& idx, const size_t distance) const {
     std::set<Pixel::Index> neighbors;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
     for(int x = idx.x() - static_cast<int>(distance); x <= idx.x() + static_cast<int>(distance); x++) {
         for(int y = idx.y() - static_cast<int>(distance); y <= idx.y() + static_cast<int>(distance); y++) {
             if(!isWithinMatrix(x, y)) {
@@ -125,6 +146,7 @@ std::set<Pixel::Index> PixelDetectorModel::getNeighbors(const Pixel::Index& idx,
             neighbors.insert({x, y});
         }
     }
+#pragma GCC diagnostic pop
 
     return neighbors;
 }

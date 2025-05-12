@@ -2,7 +2,7 @@
  * @file
  * @brief Implementation of hexagonal pixel detector model
  *
- * @copyright Copyright (c) 2021-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2021-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -103,6 +103,19 @@ ROOT::Math::XYZVector HexagonalPixelDetectorModel::getMatrixSize() const {
                        get_pixel_center_x(static_cast<int>(number_of_pixels_.x()) - 1, (number_of_pixels_.y() > 1 ? 1 : 0));
 
     return {limit_right - corner_offset_left, limit_top - corner_offset_bottom, 0};
+}
+
+std::set<Pixel::Index> HexagonalPixelDetectorModel::getPixels() const {
+    std::set<Pixel::Index> pixels;
+
+    for(int x = -static_cast<int>(number_of_pixels_.y() / 2); x < static_cast<int>(number_of_pixels_.x()); x++) {
+        for(int y = -static_cast<int>(number_of_pixels_.x() / 2); y < static_cast<int>(number_of_pixels_.y()); y++) {
+            if(isWithinMatrix(x, y)) {
+                pixels.insert({x, y});
+            }
+        }
+    }
+    return pixels;
 }
 
 std::set<Pixel::Index> HexagonalPixelDetectorModel::getNeighbors(const Pixel::Index& idx, const size_t distance) const {

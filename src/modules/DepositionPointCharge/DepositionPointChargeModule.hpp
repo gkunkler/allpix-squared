@@ -2,7 +2,7 @@
  * @file
  * @brief Definition of a module to deposit charges at a specific point
  *
- * @copyright Copyright (c) 2018-2024 CERN and the Allpix Squared authors.
+ * @copyright Copyright (c) 2018-2025 CERN and the Allpix Squared authors.
  * This software is distributed under the terms of the MIT License, copied verbatim in the file "LICENSE.md".
  * In applying this license, CERN does not waive the privileges and immunities granted to it by virtue of its status as an
  * Intergovernmental Organization or submit itself to any jurisdiction.
@@ -99,7 +99,7 @@ namespace allpix {
         double spot_size_{};
         ROOT::Math::XYZVector voxel_;
         double step_size_{};
-        unsigned int root_{}, carriers_{};
+        unsigned int root_{}, events_per_cell_{1}, carriers_{};
         ROOT::Math::XYZVector position_{};
         ROOT::Math::XYZVector mip_direction_{};
         std::vector<std::string> scan_coordinates_{};
