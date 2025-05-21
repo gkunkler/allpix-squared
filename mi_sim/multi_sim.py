@@ -201,6 +201,9 @@ with open(output_file_path, "wb") as f:
 
 print(f"Output lists saved to {output_file_path}")
 
+# Copy this script (multi_sim.py) to the output directory
+shutil.copy(__file__, os.path.join(output_object_folder, "multi_sim.py"))
+
 total_end_time = time.time()
 
 print(f'Total time: {total_end_time-total_start_time}')
