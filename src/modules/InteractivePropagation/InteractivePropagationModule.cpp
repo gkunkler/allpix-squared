@@ -874,6 +874,8 @@ InteractivePropagationModule::propagate_together(Event* event,
             output_plot_points.emplace_back(std::make_tuple(charge.getGlobalTime(), charge.getCharge(), charge.getType(), CarrierState::MOTION),
                                             std::vector<ROOT::Math::XYZPoint>());
         }
+        LOG(INFO) << "Output Linegraphs: size = " << output_plot_points.size();
+
     }
 
     // Continue time propagation until the integration time has been reached
