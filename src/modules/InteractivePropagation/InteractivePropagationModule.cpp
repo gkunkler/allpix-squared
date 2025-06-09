@@ -533,8 +533,6 @@ void InteractivePropagationModule::run(Event* event) {
         // In the ideal case of a single deposit, this charge_per_step would give the desired number of charge groups
     auto default_charge_per_step = static_cast<unsigned int>(ceil(static_cast<double>(total_deposited_charge) / std::max(max_charge_groups_,static_cast<unsigned int>(1))));
 
-    LOG(INFO) << default_charge_per_step << " vs " << ceil(static_cast<double>(total_deposited_charge) / std::max(max_charge_groups_,static_cast<unsigned int>(1))) << " vs " << static_cast<double>(total_deposited_charge) / std::max(max_charge_groups_,static_cast<unsigned int>(1));
-
     // Add the special 0 case where the max_charge_groups parameter is ignored
     if (max_charge_groups_ == 0) {
         default_charge_per_step = charge_per_step_;
