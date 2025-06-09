@@ -600,7 +600,7 @@ void InteractivePropagationModule::run(Event* event) {
         << "(" << deposits_exceeding_max_groups_ << " deposits were compressed to " << default_charge_per_step << " charges per step)"; 
     
     if (propagating_charges.size() > max_charge_groups_){
-        LOG(WARNING) << "Number of charge groups exceeded set limit of " << max_charge_groups_ 
+        LOG(WARNING) << "Number of charge groups" << propagating_charges.size() << "exceeded set limit of " << max_charge_groups_ 
             << " due to the large number of deposits with low charge quantity (true limit = set limit + number of deposits)";
     }
     
