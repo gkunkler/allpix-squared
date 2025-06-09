@@ -530,11 +530,22 @@ void InteractivePropagationModule::run(Event* event) {
     }
 
     // The number of charges per charge group based on the total amount of charge
-    // TODO: Add the ability to uncap by setting zero
-    // TODO: Check how many charge groups will be created by each deposit and dynamically increase the charge per step until the desired max is reached
-    auto default_charge_per_step = total_deposited_charge / std::max(max_charge_groups_,static_cast<unsigned int>(1));; 
+        // In the ideal case of a single deposit, this charge_per_step would give the desired number of charge groups
+    auto default_charge_per_step = static_cast<unsigned int>(ceil(total_deposited_charge / std::max(max_charge_groups_,static_cast<unsigned int>(1))));
 
-    LOG(INFO) << total_deposits_ << " total deposits must be split to conatin more than " << default_charge_per_step << " charges per charge group";
+    // Add the special 0 case where the max_charge_groups parameter is ignored
+    if (max_charge_groups_ == 0) {
+        default_charge_per_step = charge_per_step_;
+    }
+
+    // Choose the maximum charge_per_step value (which gives the minimum number of charge groups)
+    auto charge_per_step = charge_per_step_;
+    if (default_charge_per_step > charge_per_step) {
+        charge_per_step = default_charge_per_step;
+        LOG(INFO) << "max_charge_groups = " << max_charge_groups_ << " is the limiting factor in the charge_per_step =" << charge_per_step << " calculation";
+    } else {
+        LOG(INFO) << "charge_per_step = " << charge_per_step_ << " is the limiting factor in the charge_per_step =" << charge_per_step << " calculation";
+    }
 
     // Loop over all deposits for propagation
     for(const auto& deposit : deposits_message->getData()) {
@@ -560,18 +571,6 @@ void InteractivePropagationModule::run(Event* event) {
 
         LOG(DEBUG) << "Set of "<<deposit.getCharge()<<" charge carriers (" << deposit.getType() << ") on "
                    << Units::display(deposit.getLocalPosition(), {"mm", "um"});
-
-        // The maximum number of charge groups allowed for this deposit to remain below the maximum set for all deposits
-        auto max_charge_groups = static_cast<double>(deposit.getCharge()) / default_charge_per_step; 
-
-        auto charge_per_step = charge_per_step_;
-        if(max_charge_groups > 0 && deposit.getCharge() / charge_per_step > max_charge_groups) { // Check if number of charge groups from using the specified group size would exceed rate allowed by max
-            charge_per_step = static_cast<unsigned int>(ceil(default_charge_per_step));
-            deposits_exceeding_max_groups_++;
-            LOG(DEBUG) << "Deposited charge: " << deposit.getCharge()
-                    << ", which exceeds the maximum number of charge groups allowed ("<< max_charge_groups <<" for this deposit). Increasing charge_per_step to "
-                    << charge_per_step << " for this deposit.";
-        }
     
         // Split the deposit into charge groups
         unsigned int charges_remaining = deposit.getCharge();
