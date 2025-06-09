@@ -542,9 +542,9 @@ void InteractivePropagationModule::run(Event* event) {
     auto charge_per_step = charge_per_step_;
     if (default_charge_per_step > charge_per_step) {
         charge_per_step = default_charge_per_step;
-        LOG(INFO) << "max_charge_groups = " << max_charge_groups_ << " is the limiting factor in the charge_per_step =" << charge_per_step << " calculation";
+        LOG(INFO) << "max_charge_groups = " << max_charge_groups_ << " is the limiting factor in the charge_per_step = " << charge_per_step << " calculation";
     } else {
-        LOG(INFO) << "charge_per_step = " << charge_per_step_ << " is the limiting factor in the charge_per_step =" << charge_per_step << " calculation";
+        LOG(INFO) << "charge_per_step = " << charge_per_step_ << " is the limiting factor in the charge_per_step = " << charge_per_step << " calculation (>" << default_charge_per_step << ")";
     }
 
     // Loop over all deposits for propagation
@@ -595,12 +595,9 @@ void InteractivePropagationModule::run(Event* event) {
             propagating_charges.push_back(std::move(propagating_charge));
         }
     }
-
-    LOG(DEBUG) << "Number of charge groups: " << propagating_charges.size() 
-        << "(" << deposits_exceeding_max_groups_ << " deposits were compressed to " << default_charge_per_step << " charges per step)"; 
     
     if (propagating_charges.size() > max_charge_groups_){
-        LOG(WARNING) << "Number of charge groups" << propagating_charges.size() << "exceeded set limit of " << max_charge_groups_ 
+        LOG(WARNING) << "Number of charge groups (" << propagating_charges.size() << ") exceeded set limit of " << max_charge_groups_ 
             << " due to the large number of deposits with low charge quantity (true limit = set limit + number of deposits)";
     }
     
