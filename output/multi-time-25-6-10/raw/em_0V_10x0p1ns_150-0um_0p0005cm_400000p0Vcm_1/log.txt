@@ -1,0 +1,26 @@
+|16:51:49.343|  (STATUS) Welcome to Allpix^2 v3.1.0-324-g77eff8d33-dirty
+|16:51:49.344|  (STATUS) Initialized PRNG with configured seed 12728099196458894484
+|16:51:49.764| (WARNING) Main ROOT file "/home/gkunkler/allpix/allpix-squared/output/modules.root" exists and will be overwritten.
+|16:51:49.783|  (STATUS) Loading module GeometryBuilderGeant4
+|16:51:49.783|    (INFO) [C:GeometryBuilderGeant4] Detected Geant4 multithreading capabilities, enabling multithreading support
+|16:51:49.784|  (STATUS) Loading module DepositionPointCharge
+|16:51:49.785| (WARNING) Unused configuration keys in global section of sensor geometry definition:
+                         granularity
+|16:51:49.786| (WARNING) Unused configuration keys in global section of sensor geometry definition:
+                         granularity
+                         name
+|16:51:49.786|  (STATUS) Loading module ElectricFieldReader
+|16:51:49.787|  (STATUS) Loading module InteractivePropagation
+|16:51:49.787| (WARNING) [C:InteractivePropagation:DetectorModel] Per-event line graphs or animations requested, disabling parallel event processing
+|16:51:49.787| (WARNING) Module instance InteractivePropagation:DetectorModel prevents multithreading
+|16:51:49.787|  (STATUS) Loading module PulseTransfer
+|16:51:49.788|  (STATUS) Loading module ROOTObjectWriter
+|16:51:49.788|  (STATUS) Loaded 6 modules                
+|16:51:49.788|   (ERROR) Multithreading disabled since the current module configuration does not support it
+|16:51:49.788|  (STATUS) Initializing 6 module instantiations
+|16:51:49.840|    (INFO) [I:GeometryBuilderGeant4] Using Geant4 modules without multithreading might reduce performance when using complex geometries, please check the documentation for details
+|16:51:49.842|    (INFO) [I:GeometryBuilderGeant4] No overlapping volumes detected.
+|16:51:49.842|    (INFO) [I:ElectricFieldReader:DetectorModel] Set constant electric field with magnitude 0V/um
+|16:51:49.843|   (FATAL) [I:InteractivePropagation:DetectorModel] Error during execution of run:
+                                                                  This module requires a weighting potential.
+                                                                  Please check your configuration and modules. Cannot continue.

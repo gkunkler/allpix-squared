@@ -16,6 +16,7 @@ class AllpixObject:
         self.PATH_TO_SCRIPT = "mi_sim/"
         self.CONFIG_FILE = "multi_simulation.conf"
         self.OUTPUT_FILE = "multi_output.root"
+        self.LOG_FILE = "log.txt"
 
         self.DETECTOR_FILE = "detector.conf"
         self.NUMBER_OF_EVENTS = 1
@@ -72,6 +73,7 @@ class AllpixObject:
         self.INTEGRATION_TIME = 20 #ns
         self.TIME_STEP = 0.2 #ns
         self.COULOMB_FIELD_LIMIT = 5e5 #V/cm
+        self.COULOMB_DISTANCE_LIMIT = 4e-5 #cm
         self.ENABLE_DIFFUSION = 1
         self.ENABLE_COULOMB = 1
         self.PROPAGATE_ELECTRONS = 1
@@ -80,6 +82,10 @@ class AllpixObject:
         # self.MOBILITY_E = 1000 #cm*cm/V/s
         # self.MOBILITY_H = 100 #cm*cm/V/s
         self.RELATIVE_PERMITIVITY = 11.7 #10.2 for CZT, 11.7 for Si
+
+        self.SPOT_SIZE = 0
+        self.DEPOSITION_TYPE = "fixed"
+        self.NUMBER_OF_CHARGES = 1000
         
         self.WORKERS = 4
         

@@ -1,0 +1,76 @@
+|02:34:14.868|  (STATUS) Welcome to Allpix^2 v3.1.0-324-g77eff8d33-dirty
+|02:34:14.868|  (STATUS) Initialized PRNG with configured seed 12728099196458894484
+|02:34:15.378| (WARNING) Main ROOT file "/home/gkunkler/allpix/allpix-squared/output/modules.root" exists and will be overwritten.
+|02:34:15.388|  (STATUS) Loading module GeometryBuilderGeant4
+|02:34:15.388|    (INFO) [C:GeometryBuilderGeant4] Detected Geant4 multithreading capabilities, enabling multithreading support
+|02:34:15.389|  (STATUS) Loading module DepositionPointCharge
+|02:34:15.389| (WARNING) Unused configuration keys in global section of sensor geometry definition:
+                         granularity
+|02:34:15.390| (WARNING) Unused configuration keys in global section of sensor geometry definition:
+                         granularity
+                         name
+|02:34:15.390|  (STATUS) Loading module ElectricFieldReader
+|02:34:15.390|  (STATUS) Loading module WeightingPotentialReader
+|02:34:15.390|  (STATUS) Loading module InteractivePropagation   
+|02:34:15.390| (WARNING) [C:InteractivePropagation:DetectorModel] Per-event line graphs or animations requested, disabling parallel event processing
+|02:34:15.390| (WARNING) Module instance InteractivePropagation:DetectorModel prevents multithreading
+|02:34:15.390|  (STATUS) Loading module PulseTransfer
+|02:34:15.390|  (STATUS) Loading module ROOTObjectWriter
+|02:34:15.391|  (STATUS) Loaded 7 modules                
+|02:34:15.391|   (ERROR) Multithreading disabled since the current module configuration does not support it
+|02:34:15.391|  (STATUS) Initializing 7 module instantiations
+|02:34:15.412|    (INFO) [I:GeometryBuilderGeant4] Using Geant4 modules without multithreading might reduce performance when using complex geometries, please check the documentation for details
+|02:34:15.414|    (INFO) [I:GeometryBuilderGeant4] No overlapping volumes detected.
+|02:34:15.414|    (INFO) [I:ElectricFieldReader:DetectorModel] Set constant electric field with magnitude 0V/um
+|02:34:15.468|    (INFO) [I:WeightingPotentialReader:DetectorModel] Set weighting field with 300x300x100 cells
+|02:34:15.468| (WARNING) [I:WeightingPotentialReader:DetectorModel] Thickness of field is 2000um but the requested field depth is 650um
+|02:34:15.468| (WARNING) [I:WeightingPotentialReader:DetectorModel] Field map size is (990um,990um) but expecting a multiple of the pixel pitch (650um, 650um)
+                                                                    The area to which the field is applied can be changed using the field_scale parameter.
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] Selected mobility model "canali"
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] No charge carrier recombination model chosen, finite lifetime not simulated
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] Selected recombination model "none"
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] No charge carrier trapping model chosen, no trapping simulated
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] Selected trapping model "none"
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] No charge carrier detrapping model chosen, no detrapping simulated
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] No impact ionization model chosen, charge multiplication not simulated
+|02:34:15.468|    (INFO) [I:InteractivePropagation:DetectorModel] Selected impact ionization model "none"
+|02:34:15.497| (WARNING) [I:ROOTObjectWriter] DepositedCharge included, this will lead to large output files and possible performance penalties
+|02:34:15.497| (WARNING) [I:ROOTObjectWriter] PropagatedCharge included, this will lead to large output files and possible performance penalties
+|02:34:15.497|  (STATUS) Initialized 7 module instantiations
+|02:34:15.497|  (STATUS) Starting event loop
+|02:34:15.497|    (INFO) Starting event 1 with seed 5325221209051579025
+|02:34:15.497|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] charge_per_step = 1 is the limiting factor in the charge_per_step = 1 calculation (>1)
+|02:34:15.498|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] Average number of charges per group is 1 (1000 total)
+|02:34:32.890|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] Outputing propagated charges
+|02:34:32.893|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] The running of the coulomb_efield function took a combined 16961.3ms
+|02:34:32.893|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] The propagate_together function took 17395.4ms
+|02:34:32.893|    (INFO) (Event 1) [R:InteractivePropagation:DetectorModel] Propagated 1000 charges
+                                                                            Recombined 0 charges during transport
+                                                                            Trapped 0 charges during transport
+|02:34:32.893|    (INFO) (Event 1) [R:PulseTransfer:DetectorModel] [further messages suppressed] Pulses available - settings "timestep", "max_depth_distance" and "collect_from_implant" have no effect
+|02:34:32.894|    (INFO) (Event 1) [R:PulseTransfer:DetectorModel] Total charge induced on all pixels: 0e
+|02:34:32.967|    (INFO) Finished event 1 with seed 5325221209051579025
+|02:34:32.967|  (STATUS) Buffered 0, finished 1 of 1 events
+|02:34:32.967|  (STATUS) Finished run of 1 events          
+|02:34:32.967|    (INFO) [F:InteractivePropagation:DetectorModel] 0% of deposits have charge exceeding the 2000 charge groups allowed, with a charge_per_step value of 1.
+|02:34:33.165|  (STATUS) [F:ROOTObjectWriter] Wrote 1003 objects to 5 branches in file:
+                                              /home/gkunkler/allpix/allpix-squared/output/multi/raw/e_0V_10x0p1ns_1000-0p1um_0p0002cm_100000p0Vcm_1/data.root
+|02:34:33.172|  (STATUS) Finalization completed
+|02:34:33.172| (WARNING) Unused configuration keys in section DepositionPointCharge:DetectorModel:
+                         detector
+|02:34:33.172| (WARNING) Unused configuration keys in section ElectricFieldReader:DetectorModel:
+                         output_plots_single_pixel
+                         output_plots_steps
+|02:34:33.172| (WARNING) Unused configuration keys in section WeightingPotentialReader:DetectorModel:
+                         detector
+|02:34:33.172| (WARNING) Unused configuration keys in section PulseTransfer:DetectorModel:
+                         detector
+|02:34:33.172|  (STATUS) Executed 7 instantiations in 17 seconds, spending 98% of time in slowest instantiation InteractivePropagation:DetectorModel
+|02:34:33.172|    (INFO)  Module GeometryBuilderGeant4 took 21.5568ms
+|02:34:33.172|    (INFO)  Module DepositionPointCharge:DetectorModel took 0.349446ms
+|02:34:33.172|    (INFO)  Module ElectricFieldReader:DetectorModel took 0.211204ms
+|02:34:33.172|    (INFO)  Module WeightingPotentialReader:DetectorModel took 53.5689ms
+|02:34:33.172|    (INFO)  Module InteractivePropagation:DetectorModel took 16.8001s
+|02:34:33.172|    (INFO)  Module PulseTransfer:DetectorModel took 0.61488ms
+|02:34:33.172|    (INFO)  Module ROOTObjectWriter took 180.985ms
+|02:34:33.172|  (STATUS) Average processing time is 16756.1ms/event, event generation at 0 Hz

@@ -1,0 +1,13 @@
+|16:50:52.947|  (STATUS) Welcome to Allpix^2 v3.1.0-324-g77eff8d33-dirty
+|16:50:52.947|  (STATUS) Initialized PRNG with configured seed 12728099196458894484
+|16:50:53.494|  (STATUS) Loading module GeometryBuilderGeant4
+|16:50:53.496|  (STATUS) Loading module DepositionPointCharge
+|16:50:53.497|  (STATUS) Loading module ElectricFieldReader   
+|16:50:53.497|  (STATUS) Loading module InteractivePropagation
+|16:50:53.497|  (STATUS) Loading module PulseTransfer          
+|16:50:53.497|  (STATUS) Loading module ROOTObjectWriter
+|16:50:53.497|  (STATUS) Loaded 6 modules                
+|16:50:53.498|  (STATUS) Initializing 6 module instantiations
+|16:50:53.542|   (FATAL) [I:InteractivePropagation:DetectorModel] Error during execution of run:
+                                                                  This module requires a weighting potential.
+                                                                  Please check your configuration and modules. Cannot continue.

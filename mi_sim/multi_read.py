@@ -1,22 +1,40 @@
+# copy into the output/multi... directory and run from there
+
 import pickle
 import matplotlib.pyplot as plt
-from tools.fitting_functions import rms_initial_slope, rms_fit
 import numpy as np
+from scipy.stats import linregress
+
+def rms_initial_slope(t,f,i_range = [1,3]):
+
+    x_slope = t[i_range[0]:i_range[1]]
+    y_slope = f[i_range[0]:i_range[1]] 
+    
+    slope, intercept, r, p, std_err = linregress(x_slope, y_slope)
+
+    return slope,intercept
 
 # Read the output_lists.pkl file
 # output_file_path = "output/multi/output_lists.pkl"
-output_file_path = "output/multi-diffusion-cr/output_lists.pkl"
+output_file_path = "output_lists.pkl"
 with open(output_file_path, "rb") as f:
     data = pickle.load(f)
 
 # Primary Values from RMS plots
-keV_values = []
+spot_sizes = []
+num_charges_values = []
 coulomb_field_limits = []
+coulomb_distance_limits = []
 enable_diffusion_values = []
 enable_coulomb_values = []
+include_mirror_values = []
+propagate_electrons_values = []
+propagate_holes_values = []
 max_charge_group_values = []
 sim_time_values = []
+interactive_time_values = []
 charge_per_step_values = []
+max_charge_groups_values = []
 time_step_values = []
 t_rms = []
 e_rms = []
@@ -30,13 +48,20 @@ e_rms_final = []
 e_x_rms_initial_slope = []
 
 for rms_object in data:
-    keV_values.append(rms_object['keV'])
+    spot_sizes.append(rms_object['spot_size'])
+    num_charges_values.append(rms_object['num_charges'])
     coulomb_field_limits.append(rms_object['coulomb_field_limit'])
+    coulomb_distance_limits.append(rms_object['coulomb_distance_limit'])
     enable_diffusion_values.append(rms_object['enable_diffusion'])
     enable_coulomb_values.append(rms_object['enable_coulomb'])
+    include_mirror_values.append(rms_object['include_mirror'])
+    propagate_electrons_values.append(rms_object['propagate_electrons'])
+    propagate_holes_values.append(rms_object['propagate_holes'])
     max_charge_group_values.append(rms_object['max_charge_groups'])
     sim_time_values.append(rms_object['sim_time'])
+    
     charge_per_step_values.append(rms_object['charge_per_step'])
+    max_charge_groups_values.append(rms_object['max_charge_groups'])
     time_step_values.append(rms_object['time_step'])
     t_rms.append(np.array(rms_object['t_rms']))
     e_rms.append(np.array(rms_object['e_rms']))
@@ -47,7 +72,18 @@ for rms_object in data:
     e_rms_final.append(rms_object['e_rms'][-1])
     e_x_rms_initial_slope.append(rms_initial_slope(rms_object['t_rms'],rms_object['e_x_rms'])[0])
 
-keV_values = np.array(keV_values)
+    if 'ms' in rms_object['interactive_time']:
+        interactive_time = float(rms_object['interactive_time'][0:-2])
+    else:
+        interactive_time = float(rms_object['interactive_time'][0:-1])*1000
+        
+        
+    interactive_time_values.append(interactive_time) # ms
+
+spot_sizes = np.array(spot_sizes)
+num_charges_values = np.array(num_charges_values)
+coulomb_distance_limits = np.array(coulomb_distance_limits)
+interactive_time_values = np.array(interactive_time_values)
 coulomb_field_limits = np.array(coulomb_field_limits)
 enable_diffusion_values = np.array(enable_diffusion_values)
 enable_coulomb_values = np.array(enable_coulomb_values)
@@ -90,21 +126,21 @@ e_x_rms_initial_slope = np.array(e_x_rms_initial_slope)
 # analysis_2_name = "Field Limit"
 # analysis_2_units = "V/cm"
 
-analysis_values = enable_coulomb_values
+analysis_values = num_charges_values
 unique_analysis_values = np.unique(analysis_values)
 num_analysis_values = len(unique_analysis_values)
-analysis_name = "Coulomb Enabled"
+analysis_name = "Number of Charges"
 analysis_units = ""
 
-analysis_2_values = keV_values
+analysis_2_values = coulomb_distance_limits
 unique_analysis_2_values = np.unique(analysis_2_values)
 num_analysis_2_values = len(unique_analysis_2_values)
-analysis_2_name = "Energy"
-analysis_2_units = "keV"
+analysis_2_name = "Coulomb Distance Limit"
+analysis_2_units = "cm"
 
 # Set a filter on non-analysis (independent) variables to limit
 nonanalysis_values = enable_diffusion_values
-nonanalysis_filter = [0]
+nonanalysis_filter = [1]
 num_nonanalysis_filter = len(nonanalysis_filter)
 nonanalysis_units = ""
 
