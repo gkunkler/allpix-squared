@@ -43,7 +43,6 @@ InteractivePropagationModule::InteractivePropagationModule(Configuration& config
     config_.setDefault<double>("integration_time", Units::get(25, "ns"));
     config_.setDefault<unsigned int>("charge_per_step", 1);
     config_.setDefault<unsigned int>("max_charge_groups", 1000);
-    config_.setDefault<double>("coulomb_distance_limit", Units::get(4e-5,"cm"));
     config_.setDefault<double>("coulomb_field_limit", Units::get(4e5,"V/cm")); // Will need to convert to V/cm to use properly (previously 5760)
 
     // Models:
@@ -115,7 +114,6 @@ InteractivePropagationModule::InteractivePropagationModule(Configuration& config
         LOG(WARNING) << "Coulomb repulsion is enabled but relative permittivity is set to one. Check that the parameter relative_permittivity isn't misspelled or ommited.";
     }
     
-    coulomb_distance_limit_squared_ = config.get<double>("coulomb_distance_limit") * config.get<double>("coulomb_distance_limit") * 1e2; // cm^2 -> mm^2
     coulomb_field_limit_ = config.get<double>("coulomb_field_limit") * 1e-5; // Convert from V/cm to MV/mm (internal field units)
     // coulomb_field_limit_squared_ = config.get<double>("coulomb_field_limit") * config.get<double>("coulomb_field_limit") * 1e-10; // Convert from (V/cm)^2 to (MV/mm)^2 (internal field units)
 
@@ -749,17 +747,13 @@ InteractivePropagationModule::propagate_together(Event* event,
                 dist_vector = point - local_position; // A vector between the desired points (mm)
                 dist_mag2 =  dist_vector.Mag2();
 
-                if (dist_mag2 < coulomb_distance_limit_squared_){ // Limit the following calculations to if the distance of the charge is close enough to give a significant field
+                dist_mag = ROOT::Math::sqrt(dist_mag2);
 
-                    dist_mag = ROOT::Math::sqrt(dist_mag2);
-
-                    interaction_magnitude = std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2); // Magnitude of the force [MV/mm] (always positive)
-                    coulomb_mag_histo_ -> Fill(interaction_magnitude * 1e5); // Conversion from MV/mm to V/cm
-                    
-                    // Add this charge's field to the total field at the point
-                    field = field + dist_vector/dist_mag * sign * interaction_magnitude; 
-
-                }
+                interaction_magnitude = std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2); // Magnitude of the force [MV/mm] (always positive)
+                coulomb_mag_histo_ -> Fill(interaction_magnitude * 1e5); // Conversion from MV/mm to V/cm
+                
+                // Add this charge's field to the total field at the point
+                field = field + dist_vector/dist_mag * sign * interaction_magnitude; 
             }
 
             // Skip mirror charges when specified
@@ -776,20 +770,17 @@ InteractivePropagationModule::propagate_together(Event* event,
             // Apply field for negative-side mirror charge
             dist_vector = point - mirror_position_neg;
             dist_mag2 = dist_vector.Mag2();
-
-            if (dist_mag2 < coulomb_distance_limit_squared_){
-                dist_mag = ROOT::Math::sqrt(dist_mag2);
-                field = field - dist_vector/dist_mag * sign * std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2); // Mirror charges have opposite charge
-            }
+            
+            dist_mag = ROOT::Math::sqrt(dist_mag2);
+            field = field - dist_vector/dist_mag * sign * std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2); // Mirror charges have opposite charge
 
             // Apply field for positive-side mirror charge
             dist_vector = point - mirror_position_pos;
             dist_mag2 = dist_vector.Mag2();
 
-            if (dist_mag2 < coulomb_distance_limit_squared_){
-                dist_mag = ROOT::Math::sqrt(dist_mag2);
-                field = field - dist_vector/dist_mag * sign * std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2);
-            }
+            dist_mag = ROOT::Math::sqrt(dist_mag2);
+            field = field - dist_vector/dist_mag * sign * std::min(coulomb_field_limit_, coulomb_K_ / relative_permittivity_ * q / dist_mag2);
+            
         }
 
         // TODO: Rather than using coulomb_field_limit for each interaction, we could use it on the final value. 
