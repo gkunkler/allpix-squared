@@ -34,7 +34,7 @@ integration_time = 10 # ns
 # spot_size = 0 #um
 num_charges = 1000 # number of 
 # coulomb_distance_limit = 4e-5 #cm
-bias_voltage = 0 #V
+bias_voltage = -200 #V
 
 # Changing Values
 # integration_times = [5,10,25] # ns
@@ -44,8 +44,8 @@ bias_voltage = 0 #V
 # keVs = [0.5,5,10] # ionization energy = 3.64eV
 coulomb_distance_limits = [2e-4, 1e-1] #cm
 repeats = 1
-time_steps = [0.005,0.01,0.05,0.1] #ns
-spot_sizes = [0.1, 0.5, 1] #um
+time_steps = [0.1] #ns
+spot_sizes = [0.1] #um
 # coulomb_field_limits = [4e5] #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
 
 for i in range(repeats):
@@ -67,7 +67,7 @@ for i in range(repeats):
                 # for time_step in time_steps:
                 # for propagation_charges in [[1,0,0], [1,1,0], [1,0,1], [1,1,1]]: # [e,h,m]
                 # for propagation_config in [[1,1,1,0,0]]: #[d,cr,e,h,m]
-                for propagation_config in [[1,1,1,0,0], [1,0,1,0,0]]:
+                for propagation_config in [[1,1,1,0,0], [1,0,1,0,0], [1,1,1,1,0], [1,1,1,1,1], [1,1,1,0,1]]:
 
                     enable_diffusion = propagation_config[0]
                     enable_coulomb = propagation_config[1]
