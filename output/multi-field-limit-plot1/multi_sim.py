@@ -26,15 +26,16 @@ output_list = []
 num_pulses = 100 # Number of particles per event
 keV = 1
 # enable_coulomb = 1
-time_step = 0.05 #ns
+time_step = 0.5 #ns
 charge_per_step = 1
 # coulomb_field_limit = 4e5
-max_charge_groups = 1000
+max_charge_groups = 2000
+time_step = 0.02
 integration_time = 10 # ns
 # spot_size = 0 #um
-num_charges = 5000 # number of 
+num_charges = 1000 # number of 
 # coulomb_distance_limit = 4e-5 #cm
-bias_voltage = 0 #V
+bias_voltage = -200 #V
 
 # Changing Values
 # integration_times = [5,10,25] # ns
@@ -46,7 +47,7 @@ coulomb_distance_limits = [1e-1] #cm
 repeats = 1
 # time_steps = [0.1] #ns
 spot_sizes = [0] #um
-coulomb_field_limits = [5e3,4e5,5e7] #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
+coulomb_field_limits = [1e4,4e5,1e7] #[5e4,7e4,1e5,3e5,5e5,7e5,1e6,2e6]
 
 for i in range(repeats):
 
