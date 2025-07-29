@@ -577,19 +577,20 @@ void InteractivePropagationModule::run(Event* event) {
     
         // Split the deposit into charge groups
         unsigned int charges_remaining = deposit.getCharge();
+        unsigned int charge_step = charge_per_step; // New charge step variable that gets reset for each deposit
         while(charges_remaining > 0) {
 
             // Define number of charges to be propagated and remove charges of this step from the total
             if(charge_per_step > charges_remaining) {
-                charge_per_step = charges_remaining;
+                charge_step = charges_remaining; // The final deposit has the remaining charge
             }
-            charges_remaining -= charge_per_step;
+            charges_remaining -= charge_step;
 
             // Add charge to propagating charge vector to be time-stepped later
             PropagatedCharge propagating_charge(deposit.getLocalPosition(),
                                             deposit.getGlobalPosition(),
                                             deposit.getType(),
-                                            charge_per_step,
+                                            charge_step,
                                             deposit.getLocalTime(), // The local deposition time
                                             deposit.getGlobalTime(), // The global deposition time
                                             CarrierState::MOTION,
@@ -605,15 +606,9 @@ void InteractivePropagationModule::run(Event* event) {
     }
     
     LOG(INFO) << "Average number of charges per group is " << total_deposited_charge/propagating_charges.size() << " ("<< propagating_charges.size() <<" total)";
-
-    auto start = std::chrono::system_clock::now();
-
+    
     // Propagation occurs within the following function call
     auto [recombined_charges_count, trapped_charges_count, propagated_charges_count] = propagate_together(event, propagating_charges, propagated_charges, output_plot_points);
-
-    auto end = std::chrono::system_clock::now();
-
-    LOG(INFO) << "The propagate_together function took " << (end - start).count()/1e6 << "ms";
 
     // Output plots if required
     if(output_linegraphs_) {
